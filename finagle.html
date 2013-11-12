@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -51,7 +52,7 @@
 <p>We&#8217;re about to discuss some code that&#8217;s not part of standard Scala. If you like to use the <span class="caps">REPL</span> to learn, you might wonder how to get a Scala <span class="caps">REPL</span> that knows about Twitter&#8217;s Finagle and things it depends on.</p>
 <p>You want the <a href="https://github.com/twitter/finagle/">Finagle source code</a>.</p>
 <p>If you have the Finagle source code in a directory named <code>finagle</code>, you can get a console via</p>
-<pre>
+<pre class="prettyprint">
 $ cd finagle
 $ ./sbt "project finagle-http" console
  ...build output...
@@ -59,7 +60,7 @@ scala&gt;
 </pre>
 <h2 id="Future">Futures</h2>
 <p>Finagle uses <code>com.twitter.util.Future</code><sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup> to encode delayed operations. A Future is a handle for a value not yet available. Finagle uses Futures as return values for its asynchronous APIs. A synchronous <span class="caps">API</span> waits for a result before returning; an asynchronous <span class="caps">API</span> does not. For example, an <span class="caps">HTTP</span> request to some service on the internet might not return a value for half a second. You don&#8217;t want your program&#8217;s execution to block for half a second waiting. &#8220;Slow&#8221; APIs can return a <code>Future</code> right away and then &#8220;fill in&#8221; its value when it resolves.</p>
-<pre>
+<pre class="prettyprint">
 val myFuture = MySlowService(request) // returns right away
    ...do other things...
 val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
@@ -67,14 +68,14 @@ val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
 <p>In practice, you won&#8217;t write code that sends a request and then calls <code>myFuture.get</code> a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.</p>
 <p>If you&#8217;ve used other asynchronous APIs, you perhaps cringed when you saw the word &#8220;callbacks&#8221; just now. You might associate them with illegible code flows, functions hiding far from where they&#8217;re invoked. But Futures can take advantage of Scala&#8217;s first-class functions to present a more-readable code flow. You can define a simpler handler function in the place where it&#8217;s invoked.</p>
 <p>For example to, write code that dispatches a request and then &#8220;handles&#8221; the response, you can keep the code together:</p>
-<pre>
+<pre class="prettyprint">
 val future = dispatch(req) // returns immediately, but future is "empty"
 future onSuccess { reply =&gt; // when the future gets "filled", use its value
   println(reply)
 }
 </pre>
 <p>You can play with Futures in the <span class="caps">REPL</span>. This is a bad way to learn how you will use them in real code, but can help with understanding the <span class="caps">API</span>. When you use the <span class="caps">REPL</span>, Promise is a handy class. It&#8217;s a concrete subclass of the abstract Future class. You can use it to create a Future that has no value yet.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; import com.twitter.util.{Future,Promise}
 import com.twitter.util.{Future, Promise}
 
@@ -117,7 +118,7 @@ scala&gt;
 </blockquote>
 <p><code>flatMap</code> sequences two futures. That is, it takes a Future and an asynchronous function and returns another Future. The method signature tells the story: given the successful value of a future, the function <code>f</code> provides the next <code>Future</code>. <code>flatMap</code> automatically calls <code>f</code> if/when the input <code>Future</code> completes successfully. The result of this operation is another <code>Future</code> that is complete only when both of these futures have completed. If either <code>Future</code> fails, the given <code>Future</code> will also fail. This implicit interleaving of errors allow us to handle errors only in those places where they are semantically significant. <code>flatMap</code> is the standard name for the combinator with these semantics.</p>
 <p>If you have a Future and you want apply an asynchronous <span class="caps">API</span> to its value, use <tt>flatMap</tt>. For example, suppose you have a Future[User] and need a Future[Boolean] indicating whether the enclosed User has been banned. There is an <code>isBanned</code> <span class="caps">API</span> to determine whether a User has been banned, but it is asynchronous. You can use flatMap:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; import com.twitter.util.{Future,Promise}
 import com.twitter.util.{Future, Promise}
 
@@ -146,7 +147,7 @@ res45: Boolean = false
 scala&gt;
 </pre>
 <p>Similarly, to apply a <em>synchronous</em> function to a Future, use <tt>map</tt>. For example, suppose you have a Future[RawCredentials] and need a Future[Credentials]. You have a synchronous <code>normalize</code> function that converts from RawCredentials to Credentials. You can use <code>map</code>:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class RawCredentials(u: String, pw: String) {
      |   val username = u
      |   val password = pw
@@ -183,7 +184,7 @@ res48: String = florence
 scala&gt;
 </pre>
 <p>Scala has syntactic shorthand to invoke flatMap: the <code>for</code> comprehension. Suppose you want to authenticate a login request via an asynchronous <span class="caps">API</span> and then check to see whether the user is banned via another asynchronous <span class="caps">API</span>. With the help of for-comprehensions, we can write this as:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def authenticate(req: LoginRequest) = {
      |   // TODO: we should check the password
      |   Future.value(new User(req.username))
@@ -203,7 +204,7 @@ scala&gt;
 <h3>Concurrent composition</h3>
 <p>You might want to fetch data from more than one service at once. For example, if you&#8217;re writing a web service that shows content and ads, it might fetch content from one service and ads from another. But how do you tell your code to wait for both replies? This could get tricky if you had to write it yourself, but instead you can use concurrent combinators.</p>
 <p><code>Future</code> provides some concurrent combinators. Generally, these convert a sequence of <code>Future</code> into a <code>Future</code> of sequence in slightly different ways. This is nice because it lets you (essentially) package several Futures into a single Future.</p>
-<pre>
+<pre class="prettyprint">
 object Future {
   …
   def collect[A](fs: Seq[Future[A]]): Future[Seq[A]]
@@ -212,7 +213,7 @@ object Future {
 }
 </pre>
 <p><code>collect</code> takes a set of <code>Future</code>s of the same type, and yields a <code>Future</code> of a sequence of values of that type. This future is complete when all of the underlying futures have completed or when any of them have failed. The returned sequence&#8217;s order corresponds to the order of the passed-in sequence.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val f2 = Future.value(2)
 f2: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@13ecdec0
 
@@ -230,7 +231,7 @@ res9: Int = 5
 
 </pre>
 <p><code>join</code> takes a sequence of <code>Future</code>s whose types may be mixed, yielding a <code>Future[Unit]</code> that is complete when all of the underlying futures are (or fails if any of them do). This is useful for indicating the completion of a set of heterogeneous operations. It might be a good solution for the content-and-ads example.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val ready = Future.join(Seq(f2, f3))
 ready: com.twitter.util.Future[Unit] = Promise@699347471(...)
 
@@ -239,7 +240,7 @@ scala&gt; ready.get() // doesn't ret value, but I know my futures are done
 scala&gt;
 </pre>
 <p><code>select</code> returns a <code>Future</code> that is complete when the first of the given <code>Future</code>s complete. It returns that <code>Future</code> together with a Seq containing the remaining uncompleted Futures. (It doesn&#8217;t do anything to cancel the remaining Futures. If you want to wait for more responses, you can; if you want to ignore the remaining responses, you can.)</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val pr7 = new Promise[Int] // unresolved future
 pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
 
@@ -268,7 +269,7 @@ scala&gt;
 <p><a name="combined_combinator_example_cache">&nbsp;</a></p>
 <h3>Composition Example: Cached Rate Limit</h3>
 <p>These combinators express operations typical of network services. This hypothetical code performs rate limiting (in order to maintain a local rate limit cache) concurrently with dispatching a request on behalf of the user to the backend:</p>
-<pre>
+<pre class="prettyprint">
 // Find out if user is rate-limited. This can be slow; we have to ask
 // the remote server that keeps track of who is rate-limited.
 def isRateLimited(u: User): Future[Boolean] = {
@@ -312,7 +313,7 @@ def getTimeline(cred: Credentials): Future[Timeline] =
 <p><a name="combined_combinator_example_thumbnail">&nbsp;</a></p>
 <h3>Composition Examples: Web Crawlers</h3>
 <p>You&#8217;ve seen how to to use combinators with Futures, but might appreciate  more examples. Suppose you have a simple model of the internet. It has <span class="caps">HTML</span> pages and images. Pages can link to images and link to other pages. You can fetch a page or an image, but the <span class="caps">API</span> is asynchronous. This fake <span class="caps">API</span> calls these &#8220;fetchable&#8221; things Resources:</p>
-<pre>
+<pre class="prettyprint">
 import com.twitter.util.{Try,Future,Promise}
 
 // a fetchable thing
@@ -357,7 +358,7 @@ def fetch(url: String) = { new Promise(Try(internet(url))) }
 <p><strong>Sequential Composition</strong></p>
 <p>Suppose you wish to fetch a page&#8217;s first image, given that page&#8217;s <span class="caps">URL</span>. Perhaps you&#8217;re making a site where users can post links to interesting pages. To help other users decide whether a link is worth following, you want to display a thumbnail of the linked-to page&#8217;s first image.</p>
 <p>If you didn&#8217;t know about combinators, you could still write a thumbnail-getting function:</p>
-<pre>
+<pre class="prettyprint">
 def getThumbnail(url: String): Future[Resource]={
   val returnVal = new Promise[Resource]
 
@@ -375,13 +376,13 @@ def getThumbnail(url: String): Future[Resource]={
 </pre>
 <p>This version of the function works OK. Most of it consists of unwrapping Futures and then putting their contents into another Future.</p>
 <p>We want to get one page and then get one image from that page. If you want <var>A</var> and then <var>B</var>, that usually means sequential composition. Since our <var>B</var> is asynchronous, we want flatMap:</p>
-<pre>
+<pre class="prettyprint">
 def getThumbnail(url: String): Future[Resource] =
   fetch(url) flatMap { page =&gt; fetch(page.imageLinks()(0)) }
 </pre>
 <p><strong>&#8230;with Concurrent Composition</strong></p>
 <p>Fetching a page&#8217;s first image is nice, but maybe we should fetch all of them and let the user choose their favorite. We could write a <code>for</code> loop to fetch them one after the other, but that could take a long time. We&#8217;d like to fetch them in parallel. If you want things to happen &#8220;in parallel,&#8221; that usually means concurrent composition. So we use Future.collect to fetch all of the images:</p>
-<pre>
+<pre class="prettyprint">
 def getThumbnails(url:String): Future[Seq[Resource]] =
   fetch(url) flatMap { page =&gt;
     Future.collect(
@@ -392,7 +393,7 @@ def getThumbnails(url:String): Future[Seq[Resource]] =
 <p>If this makes sense to you, then great. You might worry about the line <code>page.imageLinks map { u =&gt; fetch(u) }</code>: it uses <code>map</code> and the thing after the <code>map</code> returns a Future. Aren&#8217;t we supposed to use flatMap when the next thing returns a Future? But notice that the thing <em>before</em> the <code>map</code> isn&#8217;t a Future; it&#8217;s a collection. <var>collection</var> map <var>function</var> returns a collection; we use Future.collect to gather that collection of Futures into one Future.</p>
 <p><strong>Concurrent + Recursion</strong></p>
 <p>Instead of fetching a page&#8217;s images, we might fetch the other pages that it links to. If we then recurse on those, we have a simple web crawler.</p>
-<pre>
+<pre class="prettyprint">
 // Return
 def crawl(url: String): Future[Seq[Resource]] =
   fetch(url) flatMap { page =&gt;
@@ -434,7 +435,7 @@ scala&gt;
 <p>We also talk about Finagle &#8220;filters.&#8221; A filter sits between services, modifying data that flows through it. Filters compose nicely with services. For example, if you have a rate-limiter filter and a tweet-serving service, you can put them together to make a rate-limited tweet-serving service.</p>
 <h2 id="client">Client</h2>
 <p>A Finagle client &#8220;imports&#8221; a Service. It has some configuration about how to send data over the network. A simple <span class="caps">HTTP</span> client might look like:</p>
-<pre>
+<pre class="prettyprint">
 import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpRequest, HttpResponse, HttpVersion, HttpMethod}
 import com.twitter.finagle.Service
 import com.twitter.finagle.builder.ClientBuilder
@@ -460,7 +461,7 @@ f onSuccess { res =&gt;
 </pre>
 <h2 id="server">Server</h2>
 <p>A server is defined in terms of a Service and some configuration about how to &#8220;listen&#8221; for requests coming in over the network. A simple <span class="caps">HTTP</span> server might look like:</p>
-<pre>
+<pre class="prettyprint">
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.Http
 import com.twitter.util.Future
@@ -492,7 +493,7 @@ val server: Server = ServerBuilder()
 <h2 id="Filter">Filters</h2>
 <p>Filters transform services. They can provide <em>service generic</em> functionality. For example, you might have several services that should support rate limiting; you can write one rate-limiting filter and apply it to all your services. Filters are also good for decomposing a service into distinct phases.</p>
 <p>A simple proxy might look like this:</p>
-<pre>
+<pre class="prettyprint">
 class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
 {
   def apply(request: HttpRequest) = {
@@ -503,12 +504,12 @@ class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
 }
 </pre>
 <p>where <code>rewriteReq</code> and <code>rewriteRes</code> can provide protocol translation, for example.</p>
-<pre>
+<pre class="prettyprint">
 abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
   extends ((ReqIn, Service[ReqOut, RepIn]) =&gt; Future[RepOut])
 </pre>
 <p>Its type is better viewed diagrammatically:</p>
-<pre>
+<pre class="prettyprint">
     ((ReqIn, Service[ReqOut, RepIn])
          =&gt; Future[RepOut])
 
@@ -517,7 +518,7 @@ abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 [ReqIn -&gt; (ReqOut -&gt; RepIn) -&gt; RepOut]
 </pre>
 <p>Here&#8217;s how you might write a filter that provides a service timeout mechanism.</p>
-<pre>
+<pre class="prettyprint">
 class TimeoutFilter[Req, Rep](
   timeout: Duration,
   exception: RequestTimeoutException,
@@ -540,7 +541,7 @@ class TimeoutFilter[Req, Rep](
 }
 </pre>
 <p>This example shows how you might provide authentication (via an authentication service) in order to convert a <code>Service[AuthHttpReq, HttpRep]</code> into <code>Service[HttpReq, HttpRep]</code>.</p>
-<pre>
+<pre class="prettyprint">
 class RequireAuthentication(authService: AuthService)
   extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep] {
   def apply(
@@ -559,7 +560,7 @@ class RequireAuthentication(authService: AuthService)
 </pre>
 <p>Using a filter this way yields some nice advantages. It helps you keep your &#8220;auth logic&#8221; in one place. Having a separate type for authorized requests makes it easier to reason about your program&#8217;s security.</p>
 <p>Filters compose together with <code>andThen</code>. Providing a <code>Service</code> as an argument to <code>andThen</code> creates a (filtered) <code>Service</code> (types provided for illustration).</p>
-<pre>
+<pre class="prettyprint">
 val authFilter: Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 val timeoutfilter[Req, Rep]: Filter[Req, Rep, Req, Rep]
 val serviceRequiringAuth: Service[AuthHttpReq, HttpRep]
@@ -573,7 +574,7 @@ val authenticatedTimedOutService: Service[HttpReq, HttpRep] =
 <h2 id="Builder">Builders</h2>
 <p>Builders put it all together. A <code>ClientBuilder</code> produces a <code>Service</code> instance given a set of parameters, and a <code>ServerBuilder</code> takes a <code>Service</code> instance and dispatches incoming requests on it. In order to determine the type of <code>Service</code>, we must provide a <code>Codec</code>. Codecs provide the underlying protocol implementation (eg. <span class="caps">HTTP</span>, thrift, memcached). Both builders have many parameters, and require a few.</p>
 <p>Here&#8217;s an example <code>ClientBuilder</code> invocation (types provided for illustration):</p>
-<pre>
+<pre class="prettyprint">
 val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
   .codec(Http)
   .hosts("host1.twitter.com:10000,host2.twitter.com:10001,host3.twitter.com:10003")
@@ -585,7 +586,7 @@ val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
 </pre>
 <p>This builds a client that load balances over the three given hosts, establishing at most one connection per host, and giving up only after two failures. Stats are reported to <a href="https://github.com/twitter/ostrich">ostrich</a>. The following builder options are required (and their presence statically enforced): <code>hosts</code> or <code>cluster</code>, <code>codec</code> and <code>hostConnectionLimit</code>.</p>
 <p>Similarly, you can use a <code>ServerBuilder</code> to make your service &#8220;listen&#8221; for incoming requests:</p>
-<pre>
+<pre class="prettyprint">
 val service = new MyService(...) // construct instance of your Finagle service
 var filter = new MyFilter(...) // and maybe some filters
 var filteredServce = filter andThen service

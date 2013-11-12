@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -48,26 +49,26 @@
 <h2 id="basics">The basics</h2>
 <h3>List</h3>
 <p>The standard linked list.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; List(1, 2, 3)
 res0: List[Int] = List(1, 2, 3)
 </pre>
 <p>You can cons them up as you would expect in a functional language.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 <p><strong>See also</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/List.html"><span class="caps">API</span> doc</a></p>
 <h3>Set</h3>
 <p>Sets have no duplicates</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 <p><strong>See also</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html"><span class="caps">API</span> doc</a></p>
 <h3>Seq</h3>
 <p>Sequences have a defined order.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Seq(1, 1, 2)
 res3: Seq[Int] = List(1, 1, 2)
 </pre>
@@ -75,7 +76,7 @@ res3: Seq[Int] = List(1, 1, 2)
 <p><strong>See also</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/Seq.html"><span class="caps">API</span> doc</a></p>
 <h3>Map</h3>
 <p>Maps are key value containers.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map('a' -&gt; 1, 'b' -&gt; 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
@@ -100,7 +101,7 @@ res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 <h2 id="methods">The methods</h2>
 <h3>Traversable</h3>
 <p>All of these methods below are available all the way down.  The argument and return types types won&#8217;t always look the same as subclasses are free to override them.</p>
-<pre>
+<pre class="prettyprint">
 def head : A
 def tail : Traversable[A]
 </pre>
@@ -131,7 +132,7 @@ def groupBy [K] (f: (A) =&gt; K) : Map[K, Traversable[A]]
 </code></p>
 <p>Conversion:</p>
 <p>Interestingly, you can convert one collection type to another.</p>
-<pre>
+<pre class="prettyprint">
 def toArray : Array[A]
 def toArray [B &gt;: A] (implicit arg0: ClassManifest[B]) : Array[B]
 def toBuffer [B &gt;: A] : Buffer[B]
@@ -147,23 +148,23 @@ def toString () : String
 def toTraversable : Traversable[A]
 </pre>
 <p>Let&#8217;s convert a Map to an Array. You get an Array of the Key Value pairs.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map(1 -&gt; 2).toArray
 res41: Array[(Int, Int)] = Array((1,2))
 </pre>
 <h3>Iterable</h3>
 <p>Adds access to an iterator.</p>
-<pre>
+<pre class="prettyprint">
   def iterator: Iterator[A]
 </pre>
 <p>What does an Iterator give you?</p>
-<pre>
+<pre class="prettyprint">
 def hasNext(): Boolean
 def next(): A
 </pre>
 <p>This is very Java-esque.  You often won&#8217;t see iterators used in Scala, you are much more likely to see the functional combinators or a for-comprehension used.</p>
 <h3>Set</h3>
-<pre>
+<pre class="prettyprint">
   def contains(key: A): Boolean
   def +(elem: A): Set[A]
   def -(elem: A): Set[A]
@@ -171,30 +172,30 @@ def next(): A
 <h3>Map</h3>
 <p>Sequence of key and value pairs with lookup by key.</p>
 <p>Pass a List of Pairs into apply() like so</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map("a" -&gt; 1, "b" -&gt; 2)
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
 </pre>
 <p>Or also like:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map(("a", 2), ("b", 2))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
 </pre>
 <h6>Digression</h6>
 <p>What is <code>-&gt;</code>? That isn&#8217;t special syntax, it&#8217;s a method that returns a Tuple.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; "a" -&gt; 2
 
 res0: (java.lang.String, Int) = (a,2)
 </pre>
 <p>Remember, that is just sugar for</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; "a".-&gt;(2)
 
 res1: (java.lang.String, Int) = (a,2)
 </pre>
 <p>You can also build one up via <code>++</code></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
 </pre>
@@ -202,31 +203,31 @@ res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (
 <p><strong>HashSet and HashMap</strong> Quick lookup, the most commonly used forms of these collections. <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html">HashSet <span class="caps">API</span></a>, <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html">HashMap <span class="caps">API</span></a></p>
 <p><strong>TreeMap</strong> A subclass of SortedMap, it gives you ordered access. <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html">TreeMap <span class="caps">API</span></a></p>
 <p><strong>Vector</strong> Fast random selection and fast updates. <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html">Vector <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 <p><strong>Range</strong> Ordered sequence of Ints that are spaced apart.  You will often see this used where a counting for-loop was used before. <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html">Range <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; for (i &lt;- 1 to 3) { println(i) }
 1
 2
 3
 </pre>
 <p>Ranges have the standard functional combinators available to them.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; (1 to 3).map { i =&gt; i }
 res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 <h3>Defaults</h3>
 <p>Using apply methods on the traits will give you an instance of the default implementation, For instance, Iterable(1, 2) returns a List as its default implementation.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Iterable(1, 2)
 
 res0: Iterable[Int] = List(1, 2)
 </pre>
 <p>Same with Seq, as we saw earlier</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Seq(1, 2)
 res3: Seq[Int] = List(1, 2)
 
@@ -238,7 +239,7 @@ warning: there were deprecation warnings; re-run with -deprecation for details
 res2: Seq[Int] = List(1, 2)
 </pre>
 <p>Set</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Set(1, 2)
 res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
@@ -260,7 +261,7 @@ res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 <h2 id="mutable">Mutable</h2>
 <p>All of the above classes we&#8217;ve discussed were immutable.  Let&#8217;s discuss the commonly used mutable collections.</p>
 <p><strong>HashMap</strong> defines <code>getOrElseUpdate</code>, <code>+=</code> <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html">HashMap <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val numbers = collection.mutable.Map(1 -&gt; 2)
 numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
 
@@ -283,7 +284,7 @@ res56: numbers.type = Map((2,3), (4,1), (1,2))
 <p><strong>StringBuilder</strong> Interestingly, StringBuilder is a collection. <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html"><span class="caps">API</span> doc</a></p>
 <h2 id="java">Life with Java</h2>
 <p>You can easily move between Java and Scala collection types using conversions that are available in the <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>. It decorates commonly-used Java collections with <code>asScala</code> methods and Scala collections with <code>asJava</code> methods.</p>
-<pre>
+<pre class="prettyprint">
    import scala.collection.JavaConverters._
    val sl = new scala.collection.mutable.ListBuffer[Int]
    val jl : java.util.List[Int] = sl.asJava
@@ -291,7 +292,7 @@ res56: numbers.type = Map((2,3), (4,1), (1,2))
    assert(sl eq sl2)
 </pre>
 <p>Two-way conversions:</p>
-<pre>
+<pre class="prettyprint">
 scala.collection.Iterable &lt;=&gt; java.lang.Iterable
 scala.collection.Iterable &lt;=&gt; java.util.Collection
 scala.collection.Iterator &lt;=&gt; java.util.{ Iterator, Enumeration }
@@ -301,7 +302,7 @@ scala.collection.mutable.Map &lt;=&gt; java.util.{ Map, Dictionary }
 scala.collection.mutable.ConcurrentMap &lt;=&gt; java.util.concurrent.ConcurrentMap
 </pre>
 <p>In addition, the following one way conversions are provided:</p>
-<pre>
+<pre class="prettyprint">
 scala.collection.Seq =&gt; java.util.List
 scala.collection.mutable.Seq =&gt; java.util.List
 scala.collection.Set =&gt; java.util.Set

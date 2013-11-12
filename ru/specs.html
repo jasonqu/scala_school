@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -62,7 +63,7 @@
 </ul>
 <h2 id="example">Расширяем Спецификацию</h2>
 <p>Давайте сразу посмотрим код.</p>
-<pre>
+<pre class="prettyprint">
 import org.specs._
 
 object ArithmeticSpec extends Specification {
@@ -83,7 +84,7 @@ object ArithmeticSpec extends Specification {
 <p><code>1 mustEqual 1</code> является общим заменителем <strong>ожидания</strong>, прежде чем мы начнем писать реальные тесты. Все примеры должны иметь по крайней мере одно ожидание.</p>
 <h3>Повторяемость</h3>
 <p>Заметили, что оба теста содержат <code>add</code> в своем имени? Мы избавиться от этого благодаря <strong>вложенным</strong> ожиданиям.</p>
-<pre>
+<pre class="prettyprint">
 import org.specs._
 
 object ArithmeticSpec extends Specification {
@@ -100,7 +101,7 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 <h2 id="scope">Модель выполнения</h2>
-<pre>
+<pre class="prettyprint">
 object ExecSpec extends Specification {
   "Mutations are isolated" should {
     var x = 0
@@ -116,7 +117,7 @@ object ExecSpec extends Specification {
 </pre>
 <h2 id="setup">Установка, Распаковка</h2>
 <h3>doBefore и doAfter</h3>
-<pre>
+<pre class="prettyprint">
 "my system" should {
   doBefore { resetTheSystem() /** определенная пользователем функция сброса */ }
   "mess up the system" in {...}
@@ -127,7 +128,7 @@ object ExecSpec extends Specification {
 <p><strong>ЗАМЕЧАНИЕ</strong> <code>doBefore</code>/<code>doAfter</code> будут работать только с черновыми примерами.</p>
 <h3>doFirst и doLast</h3>
 <p><code>doFirst</code>/<code>doLast</code> предназначены во время установки (здесь нужен пример, я не использую их)</p>
-<pre>
+<pre class="prettyprint">
 "Foo" should {
   doFirst { openTheCurtains() }
   "test stateless methods" in {...}
@@ -139,14 +140,14 @@ object ExecSpec extends Specification {
 <p>У вас есть данные, и вы хотите убедиться, что они верные. Давайте рассмотрим наиболее часто используемые конструкции сравнения. (Смотрите также <a href="http://code.google.com/p/specs/wiki/MatchersGuide">Matchers Guide</a>)</p>
 <h3>mustEqual</h3>
 <p>Вы уже видели несколько примеров с mustEqual.</p>
-<pre>
+<pre class="prettyprint">
 1 mustEqual 1
 
 "a" mustEqual "a"
 </pre>
 <p>Равенство ссылок, равенство значений.</p>
 <h3>элементы в Sequence</h3>
-<pre>
+<pre class="prettyprint">
 val numbers = List(1, 2, 3)
 
 numbers must contain(1)
@@ -158,7 +159,7 @@ numbers must containInOrder(List(1, 2, 3))
 List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4), 2, 3), 1))
 </pre>
 <h3>Записи в Map</h3>
-<pre>
+<pre class="prettyprint">
 map must haveKey(k)
 map must notHaveKey(k)
 
@@ -166,7 +167,7 @@ map must haveValue(v)
 map must notHaveValue(v)
 </pre>
 <h3>Числа</h3>
-<pre>
+<pre class="prettyprint">
 a must beGreaterThan(b)
 a must beGreaterThanOrEqualTo(b)
 
@@ -176,7 +177,7 @@ a must beLessThanOrEqualTo(b)
 a must beCloseTo(b, delta)
 </pre>
 <h3>Опции</h3>
-<pre>
+<pre class="prettyprint">
 a must beNone
 
 a must beSome[Type]
@@ -186,26 +187,26 @@ a must beSomething
 a must beSome(value)
 </pre>
 <h3>throwA</h3>
-<pre>
+<pre class="prettyprint">
 a must throwA[WhateverException]
 </pre>
 <p>Запись короче чем try catch с его попыткой выброса исключения в теле блока.</p>
 <p>Вы можете выдать специальное сообщение</p>
-<pre>
+<pre class="prettyprint">
 a must throwA(WhateverException("message"))
 </pre>
 <p>Вы можете также поймать определенное исключение:</p>
-<pre>
+<pre class="prettyprint">
 a must throwA(new Exception) like {
   case Exception(m) =&gt; m.startsWith("bad")
 }
 </pre>
 <h3>Пишем свои условные конструкции</h3>
-<pre>
+<pre class="prettyprint">
 import org.specs.matcher.Matcher
 </pre>
 <h4>Подобно val</h4>
-<pre>
+<pre class="prettyprint">
 "A matcher" should {
   "be created as a val" in {
     val beEven = new Matcher[Int] {
@@ -219,14 +220,14 @@ import org.specs.matcher.Matcher
 </pre>
 <p>Контракт вернет кортеж, содержащий запись о том верно ожидание или нет, и сообщение когда оно верно или наоборот.</p>
 <h4>Подобно case классу</h4>
-<pre>
+<pre class="prettyprint">
 case class beEven(b: Int) extends Matcher[Int]() {
   def apply(n: =&gt; Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
 }
 </pre>
 <p>Используя case класс, вы делаете его менее специализированным.</p>
 <h2 id="mocks">Подделки(Mocks)</h2>
-<pre>
+<pre class="prettyprint">
 import org.specs.Specification
 import org.specs.mock.Mockito
 
@@ -249,7 +250,7 @@ object MockExampleSpec extends Specification with Mockito {
 <p><strong>Смотрите также:</strong> <a href="http://code.google.com/p/specs/wiki/UsingMockito">Использование Mockito</a></p>
 <h2 id="spies">Шпионы(Spies)</h2>
 <p>Шпионы могут также быть использованы для того, чтобы сделать некоторую &#8220;частичную подделку&#8221; реальных объектов:</p>
-<pre>
+<pre class="prettyprint">
 val list = new LinkedList[String]
 val spiedList = spy(list)
 
@@ -264,20 +265,20 @@ spiedList.add("two")
 there was one(spiedList).add("one")
 </pre>
 <p>Однако, работа со шпионами может быть сложной:</p>
-<pre>
+<pre class="prettyprint">
 // если список пуст, то бросается исключение IndexOutOfBoundsException
 spiedList.get(0) returns "one"
 </pre>
 <p><code>doReturn</code> должен быть исопльзован в этом случае:</p>
-<pre>
+<pre class="prettyprint">
 doReturn("one").when(spiedList).get(0)
 </pre>
 <h2 id="sbt">Запуск индивидальных спеков(тестов) в sbt</h2>
-<pre>
+<pre class="prettyprint">
 &gt; test-only com.twitter.yourservice.UserSpec
 </pre>
 <p>Запустится только данный спек.</p>
-<pre>
+<pre class="prettyprint">
 &gt; ~ test-only com.twitter.yourservice.UserSpec
 </pre>
 <p>Будет запускаться тест в цикле, с каждой модификацией файла будет срабатывать триггер и будет запускаться тест.</p>
@@ -287,7 +288,7 @@ doReturn("one").when(spiedList).get(0)
       <div class="inner">
         <div class="container">
           <p>
-            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a><br />
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a>; Chinese simple translation by <a href="https://github.com/jasonqu">jasonqu</a><br />
             Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>

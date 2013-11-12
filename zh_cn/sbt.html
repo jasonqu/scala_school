@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -65,14 +66,14 @@
 	<li>下载jar包 <a href="http://code.google.com/p/simple-build-tool/downloads/list">地址 </a></li>
 	<li>创建一个调用这个jar的SBT shell脚本，例如</li>
 </ul>
-<pre>
+<pre class="prettyprint">
 java -Xmx512M -jar sbt-launch.jar "$@"
 </pre>
 <ul>
 	<li>确保它是可执行的，并在你的path下</li>
 	<li>运行sbt来创建项目</li>
 </ul>
-<pre>
+<pre class="prettyprint">
 [local ~/projects]$ sbt
 Project does not exist, create new project? (y/N/s) y
 Name: sample
@@ -114,7 +115,7 @@ Getting Scala 2.8.1 ...
 <h2>添加一些代码</h2>
 <p>我们将为简单的tweet消息创建一个简单的JSON解析器。将以下代码加在这个文件中<br />
 src/main/scala/com/twitter/sample/SimpleParser.scala</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 case class SimpleParsed(id: Long, text: String)
@@ -138,23 +139,23 @@ class SimpleParser {
 <p>这段代码丑陋并有bug，但应该能够编译通过。</p>
 <h2>在控制台中的测试</h2>
 <p>SBT既可以用作命令行脚本，也可以作为构建控制台。我们将主要利用它作为构建控制台，不过大多数命令可以作为参数传递给SBT独立运行，如</p>
-<pre>
+<pre class="prettyprint">
 sbt test
 </pre>
 <p>需要注意如果一个命令需要参数，你需要使用引号包括住整个参数路径，例如</p>
-<pre>
+<pre class="prettyprint">
 sbt 'test-only com.twitter.sample.SampleSpec'
 </pre>
 <p>这种方式很奇怪。</p>
 <p>不管怎样，要开始我们的代码工作了，启动SBT吧</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/sbt-sample]$ sbt
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 &gt; 
 </pre>
 <p>SBT允许你启动一个Scala REPL并加载所有项目依赖。它会在启动控制台前编译项目的源代码，从而为我们提供一个快速测试解析器的工作台。</p>
-<pre>
+<pre class="prettyprint">
 &gt; console
 [info] 
 [info] == compile ==
@@ -187,7 +188,7 @@ Type :help for more information.
 scala&gt; 
 </pre>
 <p>我们代码编译通过了，并提供了典型的Scala提示符。我们将创建一个新的解析器，一个tweet以确保其“能工作”</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; import com.twitter.sample._            
 import com.twitter.sample._
 
@@ -205,7 +206,7 @@ scala&gt;
 <h2>添加依赖</h2>
 <p>我们简单的解析器对这个非常小的输入集工作正常，但我们需要添加更多的测试并让它出错。第一步是在我们的项目中添加specs测试库和一个真正的JSON解析器。要做到这一点，我们必须超越默认的SBT项目布局来创建一个项目。</p>
 <p>SBT认为project/build目录中的Scala文件是项目定义。添加以下内容到这个文件中project/build/SampleProject.scala</p>
-<pre>
+<pre class="prettyprint">
 import sbt._
 
 class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
@@ -215,7 +216,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 </pre>
 <p>一个项目定义是一个SBT类。在上面例子中，我们扩展了SBT的DefaultProject。</p>
 <p>这里是通过val声明依赖。SBT使用反射来扫描项目中的所有val依赖，并在构建时建立依赖关系树。这里使用的语法可能是新的，但本质和Maven依赖是相同的</p>
-<pre>
+<pre class="prettyprint">
 &lt;dependency&gt;
   &lt;groupId&gt;org.codehaus.jackson&lt;/groupId&gt;
   &lt;artifactId&gt;jackson-core-asl&lt;/artifactId&gt;
@@ -229,7 +230,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 &lt;/dependency&gt;
 </pre>
 <p>现在可以下载我们的项目依赖了。在命令行中（而不是sbt console中）运行sbt update</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/sbt-sample]$ sbt update
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using SampleProject with sbt 0.7.4 and Scala 2.7.7
@@ -249,7 +250,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 <p>你会看到sbt检索到specs库。现在还增加了一个lib_managed目录，并且在lib_managed/scala_2.8.1/test目录中包含 specs_2.8.0-1.6.5.jar</p>
 <h2>添加测试</h2>
 <p>现在有了测试库，可以把下面的测试代码写入src/test/scala/com/twitter/sample/SimpleParserSpec.scala文件</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 import org.specs._
@@ -271,7 +272,7 @@ object SimpleParserSpec extends Specification {
 }
 </pre>
 <p>在SBT控制台中运行test</p>
-<pre>
+<pre class="prettyprint">
 &gt; test
 [info] 
 [info] == compile ==
@@ -323,7 +324,7 @@ object SimpleParserSpec extends Specification {
 &gt; 
 </pre>
 <p>我们的测试通过了！现在，我们可以增加更多。运行触发动作是SBT提供的优秀特性之一。在动作开始添加一个波浪线会启动一个循环，在源文件发生变化时重新运行动作。让我们运行 ~test 并看看会发生什么吧。</p>
-<pre>
+<pre class="prettyprint">
 [info] == test ==
 [success] Successful.
 [info] 
@@ -331,7 +332,7 @@ object SimpleParserSpec extends Specification {
 1. Waiting for source changes... (press enter to interrupt)
 </pre>
 <p>现在，让我们添加下面的测试案例</p>
-<pre>
+<pre class="prettyprint">
     "reject a non-JSON tweet" in {
       val tweet = """"id":1,"text":"foo""""
       parser.parse(tweet) match {
@@ -360,7 +361,7 @@ object SimpleParserSpec extends Specification {
     }
 </pre>
 <p>在我们保存文件后，SBT会检测到变化，运行测试，并通知我们的解析器有问题</p>
-<pre>
+<pre class="prettyprint">
 [info] == com.twitter.sample.SimpleParserSpec ==
 [info] SimpleParserSpec
 [info] SimpleParser should
@@ -372,7 +373,7 @@ object SimpleParserSpec extends Specification {
 [info]   + fail on partial content
 </pre>
 <p>因此，让我们返工实现真正的JSON解析器</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 import org.codehaus.jackson._
@@ -418,7 +419,7 @@ class SimpleParser {
 }
 </pre>
 <p>这是一个简单的Jackson解析器。当我们保存，SBT会重新编译代码和运行测试。代码变得越来越好了！</p>
-<pre>
+<pre class="prettyprint">
 info] SimpleParser should
 [info]   + work with basic tweet
 [info]   + reject a non-JSON tweet
@@ -428,7 +429,7 @@ info] SimpleParser should
 [info] == com.twitter.sample.SimpleParserSpec ==
 </pre>
 <p>哦。我们需要检查嵌套对象。让我们在token读取循环处添加一些丑陋的守卫。</p>
-<pre>
+<pre class="prettyprint">
   def parse(str: String) = {
     val parser = parserFactory.createJsonParser(str)
     var nested = 0
@@ -470,7 +471,7 @@ info] SimpleParser should
 <h2>打包和发布</h2>
 <p>现在我们已经可以运行package命令来生成一个jar文件。不过我们可能要与其他组分享我们的jar包。要做到这一点，我们将在StandardProject基础上构建，这给了我们一个良好的开端。</p>
 <p>第一步是引入StandardProject为SBT插件。插件是一种为你的构建引进依赖的方式，注意不是为你的项目引入。这些依赖关系定义在project/plugins/Plugins.scala文件中。添加以下代码到Plugins.scala文件中。</p>
-<pre>
+<pre class="prettyprint">
 import sbt._
 
 class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
@@ -480,7 +481,7 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
 </pre>
 <p>注意我们指定了一个Maven仓库和一个依赖。这是因为这个标准项目库是由twitter托管的，不在SBT默认检查的仓库中。</p>
 <p>我们也将更新项目定义来扩展StandardProject，包括SVN发布特质，和我们希望发布的仓库定义。修改SampleProject.scala</p>
-<pre>
+<pre class="prettyprint">
 import sbt._
 import com.twitter.sbt._
 
@@ -492,7 +493,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
 }
 </pre>
 <p>现在如果我们运行发布操作，将看到以下输出</p>
-<pre>
+<pre class="prettyprint">
 [info] == deliver ==
 IvySvn Build-Version: null
 IvySvn Build-DateTime: null
@@ -524,15 +525,15 @@ IvySvn Build-DateTime: null
 <p>这样（一段时间后），就可以在 <a href="http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/">binaries.local.twitter.com</a> 上看到我们发布的jar包。</p>
 <h2>添加任务</h2>
 <p>任务就是Scala函数。添加一个任务最简单的方法是，在你的项目定义中引入一个val定义的任务方法，如</p>
-<pre>
+<pre class="prettyprint">
 lazy val print = task {log.info("a test action"); None}
 </pre>
 <p>你也可以这样加上依赖和描述</p>
-<pre>
+<pre class="prettyprint">
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
 <p>刷新项目，并执行print操作，我们将看到以下输出</p>
-<pre>
+<pre class="prettyprint">
 &gt; print
 [info] 
 [info] == print ==
@@ -544,13 +545,13 @@ lazy val print = task {log.info("a test action"); None}.dependsOn(compile) descr
 &gt; 
 </pre>
 <p>所以它起作用了。如果你只是在一个项目定义一个任务的话，这工作得很好。然而如果你定义的是一个插件的话，它就很不灵活了。我可能要</p>
-<pre>
+<pre class="prettyprint">
 lazy val print = printAction
 def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
 def printTask = task {log.info("a test action"); None}
 </pre>
 <p>这可以让消费者覆盖任务本身，依赖和/或任务的描述，或动作本身。大多数SBT内建的动作都遵循这种模式。作为一个例子，我们可以通过修改内置打包任务来打印当前时间戳</p>
-<pre>
+<pre class="prettyprint">
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>

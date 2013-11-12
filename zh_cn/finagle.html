@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -52,7 +53,7 @@
 <p>我们将要讨论的不是标准Scala的代码。如果你喜欢使用REPL学习，你可能想知道如何获得一个加入Finagle 及其依赖的 Scala REPL。</p>
 <p>你可以在<a href="https://github.com/twitter/finagle/">这里</a>获取Finagle源代码。</p>
 <p>如果你在 <code>finagle</code>目录下有Finagle的源代码，你可以通过下面的命令得到一个控制台</p>
-<pre>
+<pre class="prettyprint">
 $ cd finagle
 $ ./sbt "project finagle-http" console
  ...build output...
@@ -60,7 +61,7 @@ scala&gt;
 </pre>
 <h2 id="Future">Futures</h2>
 <p>Finagle使用 <code>com.twitter.util.Future</code><sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup> 编码延迟操作。Future是尚未生成的值的一个句柄。Finagle使用Future作为其异步API的返回值。同步API会在返回前等待结果；但是异步API则不会等待。例如，个对互联网上一些服务的HTTP请求可能半秒都不会返回。你不希望你的程序阻塞等待半秒。 “慢”的API可以立即返回一个<code>Future</code>，然后在需要解析其值时“填充”。</p>
-<pre>
+<pre class="prettyprint">
 val myFuture = MySlowService(request) // returns right away
    ...do other things...
 val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
@@ -68,14 +69,14 @@ val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
 <p>在实践中，你不会发送一个请求，然后在几行代码后调用<code>myFuture.get</code>。Future提供了注册回调的方法，在值变得可用时会调用注册的回调函数。</p>
 <p>如果你用过其他异步API，当看到“回调”你也许会畏缩。你可能会联想到他们难以辨认的代码流，被调用的函数藏在离调用处远远的地方。但是，Future可以利用Scala中“函数是一等公民”的特性编写出更可读的代码流。你可以在调用它的地方简单地定义一个处理函数。</p>
 <p>例如，写代码调度请求，然后“处理”回应，你可以保持代码在一起：</p>
-<pre>
+<pre class="prettyprint">
 val future = dispatch(req) // returns immediately, but future is "empty"
 future onSuccess { reply =&gt; // when the future gets "filled", use its value
   println(reply)
 }
 </pre>
 <p>你可以在REPL中用体验一下Future。虽然不是学习如何在实际代码中使用他们的好方法，但可以帮助理解API。当你使用REPL，Promise是一个方便的类。它是Future抽象类的一个具体子类。你可以用它来创建一个还没有值的Future。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; import com.twitter.util.{Future,Promise}
 import com.twitter.util.{Future, Promise}
 
@@ -118,7 +119,7 @@ scala&gt;
 </blockquote>
 <p><code>flatMap</code> 序列化两个Future。即，它接受一个Future和一个异步函数，并返回另一个Future。方法签名中是这样写的：给定一个Future成功的值，函数<code>f</code>提供下一个<code>Future</code>。如果/当输入的<code>Future</code> 成功完成，<code>flatMap</code>自动调用<code>f</code>。只有当这两个Future都已完成，此操作所代表的<code>Future</code>才算完成。如果任何一个<code>Future</code>失败，则操作确定的 <code>Future</code>也将失败。这种隐交织的错误让我们只需要在必要时来处理错误，所以语法意义很大。<code>flatMap</code>是这些语义组合子的标准名称。</p>
 <p>如果你有一个Future并且想在异步API使用其值，使用<tt>flatMap</tt>。例如，假设你有一个Future[User]，需要一个Future[Boolean]表示用户是否已被禁止。有一个<code>isBanned</code> 的异步API来判断一个用户是否已被禁止。此时可以使用flatMap ：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; import com.twitter.util.{Future,Promise}
 import com.twitter.util.{Future, Promise}
 
@@ -147,7 +148,7 @@ res45: Boolean = false
 scala&gt;
 </pre>
 <p>同样，如果要在Future中应用一个<em>同步</em>函数，可以使用<tt>map</tt>。例如，假设你有一个Future[RawCredentials]需要一个Future[Credentials]。你有一个的同步的<code>normalize</code>函数将RawCredentials转换成Credentials。可以使用<code>map</code>：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class RawCredentials(u: String, pw: String) {
      |   val username = u
      |   val password = pw
@@ -184,7 +185,7 @@ res48: String = florence
 scala&gt;
 </pre>
 <p>Scala有快捷语法来调用flatMap：<code>for</code>表达式。假设你想通过异步API验证登录请求，然后通过另一个异步API检查用户是否被禁止。在for表达式的帮助下，我们可以这样写：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def authenticate(req: LoginRequest) = {
      |   // TODO: we should check the password
      |   Future.value(new User(req.username))
@@ -205,7 +206,7 @@ scala&gt;
 <p>你可能想一次获取来自多个服务的数据。例如，如果你正在编写一个Web服务来显示内容和广告，它可能会从两个服务中分别获取内容和广告。但是，你怎么告诉代码来等待两份答复呢？如果必须自己实现可能会非常棘手，幸运的是你可以使用并发组合子。</p>
 <p><code>Future</code> 提供了一些并发组合子。一般来说，他们都是将<code>Future</code>的一个序列转换成包含一个序列的<code>Future</code>，只是方式略微不同。这是很好的，因为它（本质上）可以让你把几个Future封装成一个单一的Future。</p>
 <p><a name="futconcurrent"></a></p>
-<pre>
+<pre class="prettyprint">
 object Future {
   …
   def collect[A](fs: Seq[Future[A]]): Future[Seq[A]]
@@ -214,7 +215,7 @@ object Future {
 }
 </pre>
 <p><code>collect</code>参数是具有相同类型<code>Future</code>的一个集合，返回一个<code>Future</code>，其类型是包含那个类型值的一个序列。当所有的Future都成功完成或者当中任何一个失败，都会使这个Future完成。返回序列的顺序和传入序列的顺序相对应。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val f2 = Future.value(2)
 f2: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@13ecdec0
 
@@ -232,7 +233,7 @@ res9: Int = 5
 
 </pre>
 <p><code>join</code>参数是混合类型的<code>Future</code>序列，返回一个Future[Unit]，当所有的相关Future完成时（无论他们是否失败）该Future完成。其作用是标识一组异构操作完成。对那个内容和广告的例子来说，这可能是一个很好的解决方案。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val ready = Future.join(Seq(f2, f3))
 ready: com.twitter.util.Future[Unit] = Promise@699347471(...)
 
@@ -241,7 +242,7 @@ scala&gt; ready.get() // doesn't ret value, but I know my futures are done
 scala&gt;
 </pre>
 <p>当传入的<code>Future</code>序列的第一个<code>Future</code>完成的时候，<code>select</code>会返回一个<code>Future</code>。它会将那个完成的<code>Future</code>和其它未完成的Future一起放在Seq中返回。 （它不会做任何事情来取消剩余的Future。你可以等待更多的回应，或者忽略他们）</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val pr7 = new Promise[Int] // unresolved future
 pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
 
@@ -270,7 +271,7 @@ scala&gt;
 <p><a name="combined_combinator_example_cache">&nbsp;</a></p>
 <h3>组合例子：缓存速率限制</h3>
 <p>这些组合子表达了典型的网络服务操作。这段假设的代码在对速率进行限制（为了保持本地速率限制缓存）的同时，将用户的请求调度到后台服务：</p>
-<pre>
+<pre class="prettyprint">
 // Find out if user is rate-limited. This can be slow; we have to ask
 // the remote server that keeps track of who is rate-limited.
 def isRateLimited(u: User): Future[Boolean] = {
@@ -314,7 +315,7 @@ def getTimeline(cred: Credentials): Future[Timeline] =
 <p><a name="combined_combinator_example_thumbnail">&nbsp;</a></p>
 <h3>组合例子：网络爬虫</h3>
 <p>你已经看到了怎样使用Future组合子的例子，不过也许意犹未尽。假设你有一个简单的互联网模型。该互联网中只有HTML网页和图片，其中页面可以链接到图像和其他网页。你可以获取一个页面或图像，但API是异步的。这个假设的API成这些“可获取”的数据为资源：</p>
-<pre>
+<pre class="prettyprint">
 import com.twitter.util.{Try,Future,Promise}
 
 // a fetchable thing
@@ -359,7 +360,7 @@ def fetch(url: String) = { new Promise(Try(internet(url))) }
 <p><strong>顺序组合</strong></p>
 <p>假设给定一个页面URL，而你希望获取该页面的第一个图。也许你正在做一个网站，在上面用户可以发布有趣的网页链接。为了帮助其他用户决定某个链接是否值得追踪，你打算显示那个链接中第一张图像的缩略图。</p>
 <p>即使你不知道组合子，你仍然可以写一个缩略图获取函数：</p>
-<pre>
+<pre class="prettyprint">
 def getThumbnail(url: String): Future[Resource]={
   val returnVal = new Promise[Resource]
 
@@ -377,13 +378,13 @@ def getThumbnail(url: String): Future[Resource]={
 </pre>
 <p>这个版本的函数能工作。它的大部分内容用来解析Future，然后把他们的内容传给另一个Future。</p>
 <p>我们希望得到一个页面，然后从该页面获得一个图像。如果你想获得<var>A</var>，然后再获得<var>B</var>的，这通常意味着顺序组合。由于<var>B</var>是异步的，所以需要使用flatMap：</p>
-<pre>
+<pre class="prettyprint">
 def getThumbnail(url: String): Future[Resource] =
   fetch(url) flatMap { page =&gt; fetch(page.imageLinks()(0)) }
 </pre>
 <p><strong>&#8230;通过并发组合</strong></p>
 <p>抓取页面的第一个图片是好的，但也许我们应该获取所有图片，并让用户自己进行选择。我们可以使用<code>for</code>循环一个个地抓取，但这需要很长时间；所以我们想并行获取它们。如果你想的事情“并行”发生，这通常意味着并发组合。所以我们使用Future.collect的提取所有的图像：</p>
-<pre>
+<pre class="prettyprint">
 def getThumbnails(url:String): Future[Seq[Resource]] =
   fetch(url) flatMap { page =&gt;
     Future.collect(
@@ -394,7 +395,7 @@ def getThumbnails(url:String): Future[Seq[Resource]] =
 <p>如果这对你有意义，那太好了。你可能会看不懂这行代码 <code>page.imageLinks map { u =&gt; fetch(u) }</code>：它使用<code>map</code>和<code>map</code>后的函数返回一个Future。当接下来的事情是返回一个Future时，我们不是应该使用flatMap吗？但是请注意，在<code>map</code><em>前</em>的不是一个Future；它是一个集合。<var>collection</var> map <var>function</var>返回一个集合；我们使用Future.collect收集Future的集合到一个Future中。</p>
 <p><strong>并发 + 递归</strong></p>
 <p>除了页面中的图片以外，我们可能会想获取它链接的其他页面。通过递归我们可以构建一个简单的网络爬虫。</p>
-<pre>
+<pre class="prettyprint">
 // Return
 def crawl(url: String): Future[Seq[Resource]] =
   fetch(url) flatMap { page =&gt;
@@ -435,7 +436,7 @@ scala&gt;
 <p>我们也谈论Finagle“过滤器”。过滤器在服务之间，修改流经它的数据。过滤器可以很好地和服务组合在一起。例如，如果你有一个速率限制过滤器和一个tweet服务，你可以把它们组合在一起形成有速率限制的tweet服务。</p>
 <h2 id="client">客户端</h2>
 <p>一个Finagle客户端“引入”一个网络服务。它有一些配置来设定如何在网络上发送数据。一个简单的HTTP客户端可能看起来像这样：</p>
-<pre>
+<pre class="prettyprint">
 import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpRequest, HttpResponse, HttpVersion, HttpMethod}
 import com.twitter.finagle.Service
 import com.twitter.finagle.builder.ClientBuilder
@@ -461,7 +462,7 @@ f onSuccess { res =&gt;
 </pre>
 <h2 id="server">服务端</h2>
 <p>一个服务端按服务进行定义，并配置如何“监听”网络上的请求。一个简单的HTTP服务端可能看起来像这样：</p>
-<pre>
+<pre class="prettyprint">
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.Http
 import com.twitter.util.Future
@@ -493,7 +494,7 @@ val server: Server = ServerBuilder()
 <h2 id="Filter">过滤器</h2>
 <p>过滤器改造服务，它们可以提供<em>通用的服务</em>功能。例如你有几个服务需要支持速率限制，这时可以写一个限速过滤器并将其应用于所有的服务就解决问题了。过滤器也可以将服务分解成不同的阶段。</p>
 <p>一个简单的代理可能看起来像这样：</p>
-<pre>
+<pre class="prettyprint">
 class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
 {
   def apply(request: HttpRequest) = {
@@ -504,12 +505,12 @@ class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
 }
 </pre>
 <p>其中<code>rewriteReq</code> 和 <code>rewriteRes</code>可以提供协议翻译，例如。</p>
-<pre>
+<pre class="prettyprint">
 abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
   extends ((ReqIn, Service[ReqOut, RepIn]) =&gt; Future[RepOut])
 </pre>
 <p>通过图示可以更清晰地看出其类型：</p>
-<pre>
+<pre class="prettyprint">
     ((ReqIn, Service[ReqOut, RepIn])
          =&gt; Future[RepOut])
 
@@ -518,7 +519,7 @@ abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 [ReqIn -&gt; (ReqOut -&gt; RepIn) -&gt; RepOut]
 </pre>
 <p>下面的例子展示了怎样通过过滤器来提供服务超时机制。</p>
-<pre>
+<pre class="prettyprint">
 class TimeoutFilter[Req, Rep](
   timeout: Duration,
   exception: RequestTimeoutException,
@@ -541,7 +542,7 @@ class TimeoutFilter[Req, Rep](
 }
 </pre>
 <p>这个例子展示了怎样（通过认证服务）提供身份验证来将 <code>Service[AuthHttpReq, HttpRep]</code> 转换为 <code>Service[HttpReq, HttpRep]</code>。</p>
-<pre>
+<pre class="prettyprint">
 class RequireAuthentication(authService: AuthService)
   extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep] {
   def apply(
@@ -560,7 +561,7 @@ class RequireAuthentication(authService: AuthService)
 </pre>
 <p>这样使用过滤器是有好处的。它可以帮助你将“身份验证逻辑”固定在一个地方。拥有一个独立的类型执行请求授权，会使追查程序安全问题变得更容易。</p>
 <p>过滤器可以使用 <code>andThen</code> 组合在一起。传入一个<code>Service</code>参数给<code>andThen</code> 将创建一个（添加了过滤功能）的<code>Service</code>（类型用来做说明）。</p>
-<pre>
+<pre class="prettyprint">
 val authFilter: Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 val timeoutfilter[Req, Rep]: Filter[Req, Rep, Req, Rep]
 val serviceRequiringAuth: Service[AuthHttpReq, HttpRep]
@@ -574,7 +575,7 @@ val authenticatedTimedOutService: Service[HttpReq, HttpRep] =
 <h2 id="Builder">生成器（Builder）</h2>
 <p>生成器把所有组件组合在一起。一个<code>ClientBuilder</code>对给定的一组参数生成一个<code>Service</code>，而一个 <code>ServerBuilder</code> 获取一个 <code>Service</code> 的实例，并调度传入请求给它。为了确定<code>Service</code>的类型，我们必须提供一个<code>编解码器（Codec）</code>。编解码器提供底层协议的实现（如HTTP，thrift，memcached）。这两个Builder都有很多参数，其中一些是必填的。</p>
 <p>下面是一个调用<code>ClientBuilder</code>的例子（类型用来做说明）</p>
-<pre>
+<pre class="prettyprint">
 val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
   .codec(Http)
   .hosts("host1.twitter.com:10000,host2.twitter.com:10001,host3.twitter.com:10003")
@@ -586,7 +587,7 @@ val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
 </pre>
 <p>这将构建一个客户端在三个主机上进行负载平衡，最多在每台主机建立一个连接，并在两次失败尝试后放弃。统计数据会报给 <a href="https://github.com/twitter/ostrich">ostrich</a> 。以下生成器选项是必须的（而且它们也被静态强制填写了）：<code>hosts</code> 或 <code>cluster</code>, <code>codec</code> 和 <code>hostConnectionLimit</code>。</p>
 <p>同样的，你也可以使用一个<code>ServerBuilder</code>来创建“监听”传入请求的服务：</p>
-<pre>
+<pre class="prettyprint">
 val service = new MyService(...) // construct instance of your Finagle service
 var filter = new MyFilter(...) // and maybe some filters
 var filteredServce = filter andThen service

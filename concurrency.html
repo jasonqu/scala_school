@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -47,13 +48,13 @@
 </ul>
 <h2 id="runnable">Runnable/Callable</h2>
 <p>Runnable has a single method that returns no value.</p>
-<pre>
+<pre class="prettyprint">
 trait Runnable {
   def run(): Unit
 }
 </pre>
 <p>Callable is similar to run except that it returns a value</p>
-<pre>
+<pre class="prettyprint">
 trait Callable[V] {
   def call(): V
 }
@@ -62,7 +63,7 @@ trait Callable[V] {
 <p>Scala concurrency is built on top of the Java concurrency model.</p>
 <p>On Sun JVMs, with a IO-heavy workload, we can run tens of thousands of threads on a single machine.</p>
 <p>A Thread takes a Runnable.  You have to call <code>start</code> on a Thread in order for it to run the Runnable.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val hello = new Thread(new Runnable {
   def run() {
     println("hello world")
@@ -77,7 +78,7 @@ hello world
 <p>When you see a class implementing Runnable, you know it&#8217;s intended to run in a Thread somewhere by somebody.</p>
 <h3>Something single-threaded</h3>
 <p>Here&#8217;s a code snippet that works but has problems.</p>
-<pre>
+<pre class="prettyprint">
 import java.net.{Socket, ServerSocket}
 import java.util.concurrent.{Executors, ExecutorService}
 import java.util.Date
@@ -108,11 +109,11 @@ class Handler(socket: Socket) extends Runnable {
 <p>Each request will respond with the name of the current Thread, which is always <code>main</code>.</p>
 <p>The main drawback with this code is that only one request at a time can be answered!</p>
 <p>You could put each request in a Thread.  Simply change</p>
-<pre>
+<pre class="prettyprint">
 (new Handler(socket)).run()
 </pre>
 <p>to</p>
-<pre>
+<pre class="prettyprint">
 (new Thread(new Handler(socket))).start()
 </pre>
 <p>but what if you want to reuse threads or have other policies about thread behavior?</p>
@@ -120,7 +121,7 @@ class Handler(socket: Socket) extends Runnable {
 <p>With the release of Java 5, it was decided that a more abstract interface to Threads was required.</p>
 <p>You can get an <code>ExecutorService</code> using static methods on the <code>Executors</code> object.  Those methods provide you to configure an <code>ExecutorService</code> with a variety of policies such as thread pooling.</p>
 <p>Here&#8217;s our old blocking network server written to allow concurrent requests.</p>
-<pre>
+<pre class="prettyprint">
 import java.net.{Socket, ServerSocket}
 import java.util.concurrent.{Executors, ExecutorService}
 import java.util.Date
@@ -154,7 +155,7 @@ class Handler(socket: Socket) extends Runnable {
 (new NetworkService(2020, 2)).run
 </pre>
 <p>Here&#8217;s a transcript connecting to it showing how the internal threads are re-used.</p>
-<pre>
+<pre class="prettyprint">
 $ nc localhost 2020
 pool-1-thread-1
 
@@ -170,7 +171,7 @@ pool-1-thread-2
 <h2 id="Future">Futures</h2>
 <p>A <code>Future</code> represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking <code>get()</code> method on it.  An <code>Executor</code> returns a <code>Future</code>. If you use the Finagle <span class="caps">RPC</span> system, you use <code>Future</code> instances to hold results that might not have arrived yet.</p>
 <p>A <code>FutureTask</code> is a Runnable and is designed to be run by an <code>Executor</code></p>
-<pre>
+<pre class="prettyprint">
 val future = new FutureTask[String](new Callable[String]() {
   def call(): String = {
     searcher.search(target);
@@ -178,12 +179,12 @@ val future = new FutureTask[String](new Callable[String]() {
 executor.execute(future)
 </pre>
 <p>Now I need the results so let&#8217;s block until its done.</p>
-<pre>
+<pre class="prettyprint">
 val blockingResult = future.get()
 </pre>
 <p><strong>See Also</strong> <a href="finagle.html">Scala School&#8217;s Finagle page</a> has plenty of examples of using <code>Future</code>s, including some nice ways to combine them. Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .</p>
 <h2 id="danger">Thread Safety Problem</h2>
-<pre>
+<pre class="prettyprint">
 class Person(var name: String) {
   def set(changedName: String) {
     name = changedName
@@ -197,7 +198,7 @@ class Person(var name: String) {
 <h4>synchronization</h4>
 <p>Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the <span class="caps">JVM</span> is by synchronizing on something.  In this case, we&#8217;ll synchronize on our Person.</p>
 <p>In the <span class="caps">JVM</span>, you can synchronize on any instance that&#8217;s not null.</p>
-<pre>
+<pre class="prettyprint">
 class Person(var name: String) {
   def set(changedName: String) {
     this.synchronized {
@@ -209,7 +210,7 @@ class Person(var name: String) {
 <h4>volatile</h4>
 <p>With Java 5&#8217;s change to the memory model, volatile and synchronized are basically identical except with volatile, nulls are allowed.</p>
 <p><code>synchronized</code> allows for more fine-grained locking.  <code>volatile</code> synchronizes on every access.</p>
-<pre>
+<pre class="prettyprint">
 class Person(@volatile var name: String) {
   def set(changedName: String) {
     name = changedName
@@ -218,7 +219,7 @@ class Person(@volatile var name: String) {
 </pre>
 <h4>AtomicReference</h4>
 <p>Also in Java 5, a whole raft of low-level concurrency primitives were added. One of them is an <code>AtomicReference</code> class</p>
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.atomic.AtomicReference
 
 class Person(val name: AtomicReference[String]) {
@@ -236,7 +237,7 @@ class Person(val name: AtomicReference[String]) {
 <p>As I mentioned with <code>AtomicReference</code>, Java 5 brought many great tools along with it.</p>
 <h4>CountDownLatch</h4>
 <p>A <code>CountDownLatch</code> is a simple mechanism for multiple threads to communicate with each other.</p>
-<pre>
+<pre class="prettyprint">
 val doneSignal = new CountDownLatch(2)
 doAsyncWork(1)
 doAsyncWork(2)
@@ -255,7 +256,7 @@ println("both workers finished!")
 <p>Here&#8217;s a simple inverted index that isn&#8217;t thread-safe.  Our inverted index maps parts of a name to a given User.</p>
 <p>This is written in a naive way assuming only single-threaded access.</p>
 <p>Note the alternative default constructor <code>this()</code> that uses a <code>mutable.HashMap</code></p>
-<pre>
+<pre class="prettyprint">
 import scala.collection.mutable
 
 case class User(name: String, id: Int)
@@ -284,7 +285,7 @@ class InvertedIndex(val userMap: mutable.Map[String, User]) {
 <p>In our inverted index example above, userMap is not guaranteed to be safe.  Multiple clients could try to add items at the same time and have the same kinds of visibility errors we saw in our first <code>Person</code> example.</p>
 <p>Since userMap isn&#8217;t thread-safe, how we do we keep only a single thread at a time mutating it?</p>
 <p>You might consider locking on userMap while adding.</p>
-<pre>
+<pre class="prettyprint">
 def add(user: User) {
   userMap.synchronized {
     tokenizeName(user.name).foreach { term =&gt;
@@ -294,7 +295,7 @@ def add(user: User) {
 }
 </pre>
 <p>Unfortunately, this is too coarse.  Always try to do as much expensive work outside of the mutex as possible.  Remember what I said about locking being cheap if there is no contention.  If you do less work inside of a block, there will be less contention.</p>
-<pre>
+<pre class="prettyprint">
 def add(user: User) {
   // tokenizeName was measured to be the most expensive operation.
   val tokens = tokenizeName(user.name)
@@ -309,7 +310,7 @@ def add(user: User) {
 <h2>SynchronizedMap</h2>
 <p>We can mixin synchronization with a mutable HashMap using the SynchronizedMap trait.</p>
 <p>We can extend our existing InvertedIndex to give users an easy way to build the synchronized index.</p>
-<pre>
+<pre class="prettyprint">
 import scala.collection.mutable.SynchronizedMap
 
 class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends InvertedIndex(userMap) {
@@ -320,7 +321,7 @@ class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends Inve
 <h2>Java ConcurrentHashMap</h2>
 <p>Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use JavaConverters to give us nice Scala semantics.</p>
 <p>In fact, we can seamlessly layer our new, thread-safe InvertedIndex as an extension of the old unsafe one.</p>
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConverters._
 
@@ -332,7 +333,7 @@ class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, 
 </pre>
 <h2>Let&#8217;s load our InvertedIndex</h2>
 <h3>The naive way</h3>
-<pre>
+<pre class="prettyprint">
 
 trait UserMaker {
   def makeUser(line: String) = line.split(",") match {
@@ -352,7 +353,7 @@ class FileRecordProducer(path: String) extends UserMaker {
 <p>We can&#8217;t read a file in parallel but we <em>can</em> build the User and add it to the index in parallel.</p>
 <h3>A solution: Producer/Consumer</h3>
 <p>A common pattern for async computation is to separate producers from consumers and have them only communicate via a <code>Queue</code>.  Let&#8217;s walk through how that would work for our search engine indexer.</p>
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 
 // Concrete producer

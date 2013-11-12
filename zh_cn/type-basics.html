@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -49,7 +50,7 @@
 <h2 id="background">什么是静态类型？它们为什么有用？</h2>
 <p>按Pierce的话讲：“类型系统是一个语法方法，它们根据程序计算的值的种类对程序短语进行分类，通过分类结果错误行为进行自动检查。”</p>
 <p>类型允许你表示函数的定义域和值域。例如，从数学角度看这个定义：</p>
-<pre>
+<pre class="prettyprint">
 f: R -&gt; N
 </pre>
 <p>它告诉我们函数“f”是从实数集到自然数集的映射。</p>
@@ -69,18 +70,18 @@ f: R -&gt; N
 <h2 id="parametricpoly">参数化多态性</h2>
 <p>多态性是在不影响静态类型丰富性的前提下，用来（给不同类型的值）编写通用代码的。</p>
 <p>例如，如果没有参数化多态性，一个通用的列表数据结构总是看起来像这样（事实上，它看起来很像使用泛型前的Java）：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; 2 :: 1 :: "bar" :: "foo" :: Nil
 res5: List[Any] = List(2, 1, bar, foo)
 </pre>
 <p>现在我们无法恢复其中成员的任何类型信息。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; res5.head
 res6: Any = 2
 </pre>
 <p>所以我们的应用程序将会退化为一系列类型转换（“asInstanceOf[]”），并且会缺乏类型安全的保障（因为这些都是动态的）。</p>
 <p>多态性是通过指定 <em>类型变量</em> 实现的。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def drop1[A](l: List[A]) = l.tail
 drop1: [A](l: List[A])List[A]
 
@@ -89,15 +90,15 @@ res1: List[Int] = List(2, 3)
 </pre>
 <h3>Scala有秩1多态性</h3>
 <p>粗略地说，这意味着在Scala中，有一些你想表达的类型概念“过于泛化”以至于编译器无法理解。假设你有一个函数</p>
-<pre>
+<pre class="prettyprint">
 def toList[A](a: A) = List(a)
 </pre>
 <p>你希望继续泛型地使用它：</p>
-<pre>
+<pre class="prettyprint">
 def foo[A, B](f: A =&gt; List[A], b: B) = f(b)
 </pre>
 <p>这段代码不能编译，因为所有的类型变量只有在调用上下文中才被固定。即使你“钉住”了类型<code>B</code>：</p>
-<pre>
+<pre class="prettyprint">
 def foo[A](f: A =&gt; List[A], i: Int) = f(i)
 </pre>
 <p>&#8230;你也会得到一个类型不匹配的错误。</p>
@@ -106,18 +107,18 @@ def foo[A](f: A =&gt; List[A], i: Int) = f(i)
 <p>在函数式编程语言中，类型推断的经典方法是 <em>Hindley Milner算法</em>，它最早是实现在ML中的。</p>
 <p>Scala类型推断系统的实现稍有不同，但本质类似：推断约束，并试图统一类型。</p>
 <p>例如，在Scala中你无法这样做：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; { x =&gt; x }
 &lt;console&gt;:7: error: missing parameter type
        { x =&gt; x }
 </pre>
 <p>而在OCaml中你可以：</p>
-<pre>
+<pre class="prettyprint">
 # fun x -&gt; x;;
 - : 'a -&gt; 'a = &lt;fun&gt;
 </pre>
 <p>在Scala中所有类型推断是 <em>局部的</em> 。Scala一次分析一个表达式。例如：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def id[T](x: T) = x
 id: [T](x: T)T
 
@@ -156,7 +157,7 @@ x: Array[Int] = Array(1, 2, 3, 4)
 	</tr>
 </table>
 <p>子类型关系的真正含义：对一个给定的类型T，如果T&#8217;是其子类型，你能替换它吗？</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class Covariant[+A]
 defined class Covariant
 
@@ -171,7 +172,7 @@ scala&gt; val cv: Covariant[String] = new Covariant[AnyRef]
                                    ^
 </pre>
 
-<pre>
+<pre class="prettyprint">
 scala&gt; class Contravariant[-A]
 defined class Contravariant
 
@@ -186,11 +187,11 @@ scala&gt; val fail: Contravariant[AnyRef] = new Contravariant[String]
                                      ^
 </pre>
 <p>逆变似乎很奇怪。什么时候才会用到它呢？令人惊讶的是，函数特质的定义就使用了它！</p>
-<pre>
+<pre class="prettyprint">
 trait Function1 [-T1, +R] extends AnyRef
 </pre>
 <p>如果你仔细从替换的角度思考一下，会发现它是非常合理的。让我们先定义一个简单的类层次结构：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class Animal { val sound = "rustle" }
 defined class Animal
 
@@ -201,22 +202,22 @@ scala&gt; class Chicken extends Bird { override val sound = "cluck" }
 defined class Chicken
 </pre>
 <p>假设你需要一个以<code>Bird</code>为参数的函数：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val getTweet: (Bird =&gt; String) = // TODO
 </pre>
 <p>标准动物库有一个函数满足了你的需求，但它的参数是<code>Animal</code>。在大多数情况下，如果你说“我需要一个___，我有一个___的子类”是可以的。但是，在函数参数这里是逆变的。如果你需要一个参数为<code>Bird</code>的函数，并且指向一个参数为<code>Chicken</code>的函数，那么给它传入一个<code>Duck</code>时就会出错。但指向一个参数为<code>Animal</code>的函数就是可以的：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val getTweet: (Bird =&gt; String) = ((a: Animal) =&gt; a.sound )
 getTweet: Bird =&gt; String = &lt;function1&gt;
 </pre>
 <p>函数的返回值类型是协变的。如果你需要一个返回<code>Bird</code>的函数，但指向的函数返回类型是<code>Chicken</code>，这当然是可以的。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val hatch: (() =&gt; Bird) = (() =&gt; new Chicken )
 hatch: () =&gt; Bird = &lt;function0&gt;
 </pre>
 <h2 id="bounds">边界</h2>
 <p>Scala允许你通过 <em>边界</em> 来限制多态变量。这些边界表达了子类型关系。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def cacophony[T](things: Seq[T]) = things map (_.sound)
 &lt;console&gt;:7: error: value sound is not a member of type parameter T
        def cacophony[T](things: Seq[T]) = things map (_.sound)
@@ -229,7 +230,7 @@ scala&gt; biophony(Seq(new Chicken, new Bird))
 res5: Seq[java.lang.String] = List(cluck, call)
 </pre>
 <p>类型下界也是支持的，这让逆变和巧妙协变的引入得心应手。<code>List[+T]</code>是协变的；一个Bird的列表也是Animal的列表。<code>List</code>定义一个操作<code>::(elem T)</code>返回一个加入了<code>elem</code>的新的<code>List</code>。新的<code>List</code>和原来的列表具有相同的类型：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val flock = List(new Bird, new Bird)
 flock: List[Bird] = List(Bird@7e1ec70e, Bird@169ea8d2)
 
@@ -237,40 +238,40 @@ scala&gt; new Chicken :: flock
 res53: List[Bird] = List(Chicken@56fbda05, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
 <p><code>List</code> <em>同样</em> 定义了<code>::[B &gt;: T](x: B)</code> 来返回一个<code>List[B]</code>。请注意<code>B &gt;: T</code>，这指明了类型<code>B</code>为类型<code>T</code>的超类。这个方法让我们能够做正确地处理在一个<code>List[Bird]</code>前面加一个<code>Animal</code>的操作：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; new Animal :: flock
 res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
 <p>注意返回类型是<code>Animal</code>。</p>
 <h2 id="quantification">量化</h2>
 <p>有时候，你并不关心是否能够命名一个类型变量，例如：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def count[A](l: List[A]) = l.size
 count: [A](List[A])Int
 </pre>
 <p>这时你可以使用“通配符”取而代之：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def count(l: List[_]) = l.size
 count: (List[_])Int
 </pre>
 <p>这相当于是下面代码的简写：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def count(l: List[T forSome { type T }]) = l.size
 count: (List[T forSome { type T }])Int
 </pre>
 <p>注意量化会的结果会变得非常难以理解：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def drop1(l: List[_]) = l.tail
 drop1: (List[_])List[Any]
 </pre>
 <p>突然，我们失去了类型信息！让我们细化代码看看发生了什么：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def drop1(l: List[T forSome { type T }]) = l.tail
 drop1: (List[T forSome { type T }])List[T forSome { type T }]
 </pre>
 <p>我们不能使用T因为类型不允许这样做。</p>
 <p>你也可以为通配符类型变量应用边界：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def hashcodes(l: Seq[_ &lt;: AnyRef]) = l map (_.hashCode)
 hashcodes: (Seq[_ &lt;: AnyRef])Seq[Int]
 

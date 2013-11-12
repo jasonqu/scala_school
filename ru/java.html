@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -48,7 +49,7 @@
 </ul>
 <h2>Javap</h2>
 <p>javap &#8211; это это инструмент, который поставляется вместе с <span class="caps">JDK</span>. Не с <span class="caps">JRE</span>. Между ними есть разница. Javap декомпилирует определения класса и показывает вам, что внутри. Использовать его довольно просто</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
 public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
@@ -57,7 +58,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 }
 </pre>
 <p>Если вы преподчитаете что-нибудь пожестче, то можете поглядеть на байткод</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
 Compiled from "Scalaisms.scala"
 public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
@@ -84,7 +85,7 @@ public static void $init$(com.twitter.interop.MyTrait);
 	<li>Исключения</li>
 </ul>
 <p>Мы спроектируем простой Scala класс, чтобы показать полный спектр возможностей</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop
 
 import java.io.IOException
@@ -115,7 +116,7 @@ class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: Stri
 <ul>
 	<li>по умолчанию, параметры класса являются эффективными аргументами конструктора в Java.  Это означает, что вы не можете получить доступ к ним вне класса.</li>
 </ul>
-<pre>
+<pre class="prettyprint">
 class SimpleClass(acc_: String) {
   val acc = acc_
 }
@@ -129,18 +130,18 @@ class SimpleClass(acc_: String) {
 <ul>
 	<li>var переменные определяют метод <name>_$eq. Вы можете вызвать его так</li>
 </ul>
-<pre>
+<pre class="prettyprint">
 foo$_eq("newfoo");
 </pre>
 <h3>BeanProperty</h3>
 <p>Вым можете комментировать val и var переменные с помощью @BeanProperty. Она генерирует геттеры/сеттеры подобно тому, как определяются <span class="caps">POJO</span> геттеры/сеттеры. Если вам нужен вариант isFoo, используйте аннотацию BooleanBeanProperty. Ранее уродливый foo$_eq становится</p>
-<pre>
+<pre class="prettyprint">
 setFoo("newfoo");
 getFoo();
 </pre>
 <h3>Исключения</h3>
 <p>Scala не проверяет исключения. Java проверяет. Мы не будем вдаваться, в этот философский спор, но это <strong>важно</strong>, когда вы хотите иметь возможность отлавливать исключения в Java. Определения dangerFoo и dangerBar демонстрируют это. В Java я не могу сделать этого</p>
-<pre>
+<pre class="prettyprint">
         // исключение стирается!
         try {
             s.dangerFoo();
@@ -155,7 +156,7 @@ getFoo();
 <p>Полный список Scala аннотаций для поддержки совместимости Java можно найти здесь http://www.scala-lang.org/node/106.</p>
 <h2>Трейты</h2>
 <p>Как можно получить интерфейс + реализация? Давайте возьмем простое определение трейта и посмотрим</p>
-<pre>
+<pre class="prettyprint">
 trait MyTrait {
   def traitName:String
   def upperTraitName = traitName.toUpperCase
@@ -163,7 +164,7 @@ trait MyTrait {
 </pre>
 <p>Этот трейт имеет один абстрактный метод (traitName) и один реализованный метод (upperTraitName). Что Scala генерирует для нас? Интерфейс с именем MyTrait, и соответствующую реализацию с именем MyTrait$class.</p>
 <p>Реализация MyTrait, то что вы ожидаете</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
 public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
@@ -172,7 +173,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 }
 </pre>
 <p>Реализация MyTrait$class более интерресна</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
 Compiled from "Scalaisms.scala"
 public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
@@ -182,7 +183,7 @@ public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object
 </pre>
 <p>MyTrait$class имеет только статичные методы, которые принимает экземпляр MyTrait. Это дает нам ключ к пониманию того, как расширить трейт в Java.</p>
 <p>Наша первая попытка реализована ниже</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop;
 
 public class JTraitImpl implements MyTrait {
@@ -198,14 +199,14 @@ public class JTraitImpl implements MyTrait {
 }
 </pre>
 <p>И мы получаем следущую ошибку</p>
-<pre>
+<pre class="prettyprint">
 [info] Compiling main sources...
 [error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
 [error] public class JTraitImpl implements MyTrait {
 [error]        ^
 </pre>
 <p>мы <em>можем</em> просто реализовать это сами. Но есть другой способ.</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop;
 
     public String upperTraitName() {
@@ -216,7 +217,7 @@ package com.twitter.interop;
 <h2>Объекты</h2>
 <p>Объекты &#8211; это способ реализации статических методов/синглтонов на Scala. Использование их в Java является немного странным. Существует не такой стилистически идеальный способ, чтобы использовать их, но в Scala 2.8 об этом не стоит беспокоиться</p>
 <p>Объект Scala компилируется в класс, имя которого заканчивается на &#8220;$&#8221;. Давайте создадим класс и соответствующий объект</p>
-<pre>
+<pre class="prettyprint">
 class TraitImpl(name: String) extends MyTrait {
   def traitName = name
 }
@@ -227,11 +228,11 @@ object TraitImpl {
 }
 </pre>
 <p>Мы можем просто обратиться к нему в Java, например так</p>
-<pre>
+<pre class="prettyprint">
 MyTrait foo = TraitImpl$.MODULE$.apply("foo");
 </pre>
 <p>Сейчас вы можете спросить себя, что это за чушь? Это верно. давайте посмотрим что внутри TraitImpl$</p>
-<pre>
+<pre class="prettyprint">
 local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
 Compiled from "Scalaisms.scala"
 public final class com.twitter.interop.TraitImpl$ extends java.lang.Object implements scala.ScalaObject{
@@ -244,12 +245,12 @@ public final class com.twitter.interop.TraitImpl$ extends java.lang.Object imple
 <p>Там на самом деле нет никаких статических методов. Вместо этого он имеет статический член с именем <span class="caps">MODULE</span>$. Реализация метода передает все этому члену. Это делает доступ уродливым, но работоспособным, если вы знаете как использовать <span class="caps">MODULE</span>$.</p>
 <h3>Методы переадресации</h3>
 <p>В Scala 2.8 работать с объектами стало немного проще. Если у вас есть класс с соответствующим объектом, на 2.8 компилятор сгенерирует методы переадресации на класс-спутник. Так что, если вы написали код на 2.8, вы можете получить доступ к методам в объекте TraitImpl, например так</p>
-<pre>
+<pre class="prettyprint">
 MyTrait foo = TraitImpl.apply("foo");
 </pre>
 <h2>Замыкания</h2>
 <p>Одной из важных особенностей Scala является возможность использования функций первого рода. Давайте определим класс, который имеет методы, принимающие функции в качестве аргументов.</p>
-<pre>
+<pre class="prettyprint">
 class ClosureClass {
   def printResult[T](f: =&gt; T) = {
     println(f)
@@ -261,12 +262,12 @@ class ClosureClass {
 }
 </pre>
 <p>В Scala я могу вызвать их, например так</p>
-<pre>
+<pre class="prettyprint">
 val cc = new ClosureClass
 cc.printResult { "HI MOM" }
 </pre>
 <p>В Java это не так просто, но тоже не сложно. Давайте посмотрим из чего на самом деле состоит ClosureClass:</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
 Compiled from "Scalaisms.scala"
 public class com.twitter.interop.ClosureClass extends java.lang.Object implements scala.ScalaObject{
@@ -277,7 +278,7 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
 </pre>
 <p>Все не так страшно. &#8220;f: =&gt; T&#8221; переводится в &#8220;Function0&#8221;, а &#8220;f: String =&gt; T&#8221; переводится в &#8220;Function1&#8221;. Scala фактически объявляет Function0 через Function22, поддерживающая до 22 аргументов. Которой, на самом деле, достаточно.</p>
 <p>Теперь нам нужно определить, как это сделать в Java. Оказывается Scala предоставляет AbstractFunction0 и AbstractFunction1, которые мы можем передать вот так</p>
-<pre>
+<pre class="prettyprint">
     @Test public void closureTest() {
         ClosureClass c = new ClosureClass();
         c.printResult(new AbstractFunction0() {
@@ -299,7 +300,7 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
       <div class="inner">
         <div class="container">
           <p>
-            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a><br />
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a>; Chinese simple translation by <a href="https://github.com/jasonqu">jasonqu</a><br />
             Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>

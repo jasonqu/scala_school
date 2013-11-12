@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -48,26 +49,26 @@
 <h2 id="basics">基础知识</h2>
 <h3>表 List</h3>
 <p>标准的链表。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; List(1, 2, 3)
 res0: List[Int] = List(1, 2, 3)
 </pre>
 <p>你可以用函数式语言的方式连接它们。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 <p><strong>参考</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/List.html">API文档</a></p>
 <h3>集 Set</h3>
 <p>集没有重复</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 <p><strong>参考</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html">API文档</a></p>
 <h3>序列 Seq</h3>
 <p>序列有一个给定的顺序。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Seq(1, 1, 2)
 res3: Seq[Int] = List(1, 1, 2)
 </pre>
@@ -75,7 +76,7 @@ res3: Seq[Int] = List(1, 1, 2)
 <p><strong>参考</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/Seq.html">API文档</a></p>
 <h3>映射 Map</h3>
 <p>映射是键值容器。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map('a' -&gt; 1, 'b' -&gt; 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
@@ -100,7 +101,7 @@ res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 <h2 id="methods">方法</h2>
 <h3>Traversable</h3>
 <p>下面所有方法在子类中都是可用的。参数和返回值的类型可能会因为子类的覆盖而看起来不同。</p>
-<pre>
+<pre class="prettyprint">
 def head : A
 def tail : Traversable[A]
 </pre>
@@ -131,7 +132,7 @@ def groupBy [K] (f: (A) =&gt; K) : Map[K, Traversable[A]]
 </code></p>
 <p>转换：</p>
 <p>有趣的是，你可以转换集合类型。</p>
-<pre>
+<pre class="prettyprint">
 def toArray : Array[A]
 def toArray [B &gt;: A] (implicit arg0: ClassManifest[B]) : Array[B]
 def toBuffer [B &gt;: A] : Buffer[B]
@@ -147,23 +148,23 @@ def toString () : String
 def toTraversable : Traversable[A]
 </pre>
 <p>把映射转换为一个数组，您会得到一个键值对的数组。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map(1 -&gt; 2).toArray
 res41: Array[(Int, Int)] = Array((1,2))
 </pre>
 <h3>Iterable</h3>
 <p>添加一个迭代器的访问。</p>
-<pre>
+<pre class="prettyprint">
   def iterator: Iterator[A]
 </pre>
 <p>一个迭代器能给你提供什么？</p>
-<pre>
+<pre class="prettyprint">
 def hasNext(): Boolean
 def next(): A
 </pre>
 <p>这是非常Java式的。你通常不会看到在Scala中使用迭代器，通常更容易出现的是函数组合器或for循环的使用。</p>
 <h3>Set</h3>
-<pre>
+<pre class="prettyprint">
   def contains(key: A): Boolean
   def +(elem: A): Set[A]
   def -(elem: A): Set[A]
@@ -171,30 +172,30 @@ def next(): A
 <h3>Map</h3>
 <p>通过键查找的键值对的序列。</p>
 <p>可以像这样将一个键值对列表传入apply()</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map("a" -&gt; 1, "b" -&gt; 2)
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
 </pre>
 <p>或者像这样：</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map(("a", 2), ("b", 2))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
 </pre>
 <h6>题外话</h6>
 <p>什么是<code>-&gt;</code>？这不是特殊的语法，这是一个返回元组的方法。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; "a" -&gt; 2
 
 res0: (java.lang.String, Int) = (a,2)
 </pre>
 <p>请记住，这仅仅是下面代码的语法糖</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; "a".-&gt;(2)
 
 res1: (java.lang.String, Int) = (a,2)
 </pre>
 <p>您也可以使用<code>++</code>操作符构建</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
 </pre>
@@ -202,31 +203,31 @@ res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (
 <p><strong>HashSet和HashMap</strong> 的快速查找，这些集合的最常用的形式。 <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html">HashSet <span class="caps">API</span></a>, <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html">HashMap <span class="caps">API</span></a></p>
 <p><strong>TreeMap</strong> 是SortedMap的一个子类，它可以让你进行有序访问。 <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html">TreeMap <span class="caps">API</span></a></p>
 <p><strong>Vector</strong> 快速随机选择和快速更新。 <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html">Vector <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 <p><strong>Range</strong> 等间隔的Int有序序列。你经常会在for循环看到。 <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html">Range <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; for (i &lt;- 1 to 3) { println(i) }
 1
 2
 3
 </pre>
 <p>Ranges支持标准的函数组合子。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; (1 to 3).map { i =&gt; i }
 res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 <h3>默认实现</h3>
 <p>使用特质的apply方法会给你默认实现的实例，例如，Iterable(1, 2)会返回一个列表作为其默认实现。</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Iterable(1, 2)
 
 res0: Iterable[Int] = List(1, 2)
 </pre>
 <p>序列Seq也是一样的，正如我们前面所看到的</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Seq(1, 2)
 res3: Seq[Int] = List(1, 2)
 
@@ -238,7 +239,7 @@ warning: there were deprecation warnings; re-run with -deprecation for details
 res2: Seq[Int] = List(1, 2)
 </pre>
 <p>Set</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Set(1, 2)
 res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
@@ -260,7 +261,7 @@ res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 <h2 id="mutable">可变集合</h2>
 <p>前面讨论的所有类都是不可变的。让我们来讨论常用的可变集合。</p>
 <p><strong>HashMap</strong> 定义了 <code>getOrElseUpdate</code>, <code>+=</code> <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html">HashMap <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val numbers = collection.mutable.Map(1 -&gt; 2)
 numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
 
@@ -284,7 +285,7 @@ res56: numbers.type = Map((2,3), (4,1), (1,2))
 <p><strong>StringBuilder</strong> 有趣的是，StringBuilder的是一个集合。                            <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html">API文档</a></p>
 <h2 id="java">与Java生活</h2>
 <p>您可以通过<a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>轻松地在Java和Scala的集合类型之间转换。它用<code>asScala</code> 装饰常用的Java集合以和用<code>asJava</code> 方法装饰Scala集合。</p>
-<pre>
+<pre class="prettyprint">
    import scala.collection.JavaConverters._
    val sl = new scala.collection.mutable.ListBuffer[Int]
    val jl : java.util.List[Int] = sl.asJava
@@ -292,7 +293,7 @@ res56: numbers.type = Map((2,3), (4,1), (1,2))
    assert(sl eq sl2)
 </pre>
 <p>双向转换：</p>
-<pre>
+<pre class="prettyprint">
 scala.collection.Iterable &lt;=&gt; java.lang.Iterable
 scala.collection.Iterable &lt;=&gt; java.util.Collection
 scala.collection.Iterator &lt;=&gt; java.util.{ Iterator, Enumeration }
@@ -302,7 +303,7 @@ scala.collection.mutable.Map &lt;=&gt; java.util.{ Map, Dictionary }
 scala.collection.mutable.ConcurrentMap &lt;=&gt; java.util.concurrent.ConcurrentMap
 </pre>
 <p>此外，也提供了以下单向转换</p>
-<pre>
+<pre class="prettyprint">
 scala.collection.Seq =&gt; java.util.List
 scala.collection.mutable.Seq =&gt; java.util.List
 scala.collection.Set =&gt; java.util.Set

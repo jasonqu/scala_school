@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -48,7 +49,7 @@
 </ul>
 <h2 id="apply">Метод apply</h2>
 <p>Метод apply &#8211; это синтаксический сахар, который применяется для класса или объекта с единственной целью.</p>
-<pre>
+<pre class="prettyprint">
 object FooMaker {
   def apply() = new Foo
 }
@@ -67,7 +68,7 @@ res8: Int = 0
 <p>Здесь наш экземпляр объекта выглядит так, будто мы просто вызываем метод, но это не так. Подробнее об этом позже!</p>
 <h2 id="object">Объекты</h2>
 <p>Объекты используются для хранения одного экземпляра класса. Чаще всего они используются с фабриками объектов.</p>
-<pre>
+<pre class="prettyprint">
 object Timer {
   var count = 0
 
@@ -78,13 +79,13 @@ object Timer {
 }
 </pre>
 <p>Как можно это использовать?</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Timer.currentCount()
 res0: Long = 1
 </pre>
 <p>Классы и Объекты могут иметь похожие имена. В этом случае Объект называется &#8216;Объект-спутник&#8217;(Companion Object).  Чаще всего мы будем использовать Объекты-спутники с Фабриками объектов.</p>
 <p>Далее представлен простой пример, который показывает, как можно использовать Объект-спутник, для того чтобы исключить необходимость в использовании ключевого слова &#8216;new&#8217; для создания экземпляра объекта.</p>
-<pre>
+<pre class="prettyprint">
 class Bar(foo: String)
 
 object Bar {
@@ -94,7 +95,7 @@ object Bar {
 <h2 id="fnobj">Функции, тоже являются Объектами</h2>
 <p>В Scala, мы часто говорим об объектно-функциональном стиле. Что это значит? Чем на самом деле является Функция?</p>
 <p>Функция &#8211; это набор трейтов. В частности, функция, которая принимает один аргумент является экземпляром трейта Function1. Этот трейт определяет метод <code>apply()</code>, который является синтаксическим сахаром, о нем мы узнали ранее, он позволяет вам вызывать объект, словно он является функцией.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; object addOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
@@ -107,7 +108,7 @@ res2: Int = 2
 <p>Синтаксический сахар метода apply объединяет двойственность объектного и функционального стилей программирования. Вы можете передавать классы и использовать их в качестве функций, кроме этого функции могут быть просто экземплярами классов.</p>
 <p>Означает ли это, что каждый раз, когда вы определяете метод в своем классе, вы фактически получаете экземпляр Function*? Нет, методы в классах &#8211; это просто методы. Методы-одиночки, определенные в <span class="caps">REPL</span> будут экземплярами Function*.</p>
 <p>Классы могут расширять Function* и в этих случаях они могут быть вызваны при помощи ().</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class AddOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
@@ -120,19 +121,19 @@ scala&gt; plusOne(1)
 res0: Int = 2
 </pre>
 <p>Запись <code>extends Function1[Int, Int]</code> мы можем переписать, используя <code>extends (Int =&gt; Int)</code></p>
-<pre>
+<pre class="prettyprint">
 class AddOne extends (Int =&gt; Int) {
   def apply(m: Int): Int = m + 1
 }
 </pre>
 <h2 id="package">Пакеты</h2>
 <p>Вы можете организовывать ваш код, используя пакеты.</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.example
 </pre>
 <p>В верхней части файла объявляется все, что будет в этом пакете.</p>
 <p>Значения и функции не могут быть объявлены за пределами класса или объекта. Объекты представляют собой полезный инструмент для организации статических функций.</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.example
 
 object colorHolder {
@@ -141,11 +142,11 @@ object colorHolder {
 }
 </pre>
 <p>После этого у вас есть доступ к членам пакета напрямую</p>
-<pre>
+<pre class="prettyprint">
 println("the color is: " + com.twitter.example.colorHolder.BLUE)
 </pre>
 <p>Обратите внимание, что Scala <span class="caps">REPL</span> говорит вам когда вы объявляете объект:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; object colorHolder {
      |   val Blue = "Blue"
      |   val Red = "Red"
@@ -156,7 +157,7 @@ defined module colorHolder
 <h2 id="match">Сопоставление с образцом</h2>
 <p>Одна из самых часто используемых возможностей Scala.</p>
 <p>Сопоставление значений</p>
-<pre>
+<pre class="prettyprint">
 val times = 1
 
 times match {
@@ -166,7 +167,7 @@ times match {
 }
 </pre>
 <p>Сопоставление с использованием условий</p>
-<pre>
+<pre class="prettyprint">
 times match {
   case i if i == 1 =&gt; "one"
   case i if i == 2 =&gt; "two"
@@ -181,7 +182,7 @@ times match {
 <p><strong>Смотрите также:</strong> В Effective Scala описывается <a href="http://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Сопоставление с образцом">когда использовать сопоставление с образцом </a> и <a href="http://twitter.github.com/effectivescala/index-ru.html#Форматирование-Сравнение с образцом">правила форматирования сопоставления с образцом</a>. В &#8220;Туре по Scala&#8221; также описывается <a href="http://www.scala-lang.org/node/120">Сопоставление с образцом</a></p>
 <h3>Сопоставление типов</h3>
 <p>Вы можете использовать <code>match</code>, чтобы управлять значениями типов различными способами.</p>
-<pre>
+<pre class="prettyprint">
 def bigger(o: Any): Any = {
   o match {
     case i: Int if i &lt; 0 =&gt; i - 1
@@ -195,7 +196,7 @@ def bigger(o: Any): Any = {
 <h3>Сопоставление методов класса</h3>
 <p>Вспомните про наш калькулятор, который мы рассматривали ранее.</p>
 <p>Давайте проведем классификацию по типам.</p>
-<pre>
+<pre class="prettyprint">
 def calcType(calc: Calculator) = calc match {
   case calc.brand == "hp" &amp;&amp; calc.model == "20B" =&gt; "financial"
   case calc.brand == "hp" &amp;&amp; calc.model == "48G" =&gt; "scientific"
@@ -206,7 +207,7 @@ def calcType(calc: Calculator) = calc match {
 <p>Ничего себе, как-то все слишком сложно. К счастью, Scala предоставляет некоторые полезные инструменты специально для этого случая.</p>
 <h2 id="caseclass">Case Классы</h2>
 <p>Case классы используются для удобного хранения и поиска соответствий по содержимому класса. Вы можете создавать их без использования &#8216;new&#8217;.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; case class Calculator(brand: String, model: String)
 defined class Calculator
 
@@ -215,7 +216,7 @@ hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
 <p>У case классов есть метод ToString, работающий автоматически, и который опирается на аргументы конструктора.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val hp20b = Calculator("hp", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
@@ -228,7 +229,7 @@ res6: Boolean = true
 <p>case классы могут иметь методы, как и обычные классы.</p>
 <h6>Case Классы и сопоставление с образцом</h6>
 <p>case классы предназначены для использования вместе с сопоставлением с образцом. Давайте упростим наш классификатор из примера с калькулятором.</p>
-<pre>
+<pre class="prettyprint">
 val hp20b = Calculator("hp", "20B")
 val hp30b = Calculator("hp", "30B")
 
@@ -240,20 +241,20 @@ def calcType(calc: Calculator) = calc match {
 }
 </pre>
 <p>А это другой способ для последнего сопоставления</p>
-<pre>
+<pre class="prettyprint">
   case Calculator(_, _) =&gt; "Calculator of unknown type"
 </pre>
 <p>мы можем не объявлять, что это Calculator совсем.</p>
-<pre>
+<pre class="prettyprint">
   case _ =&gt; "Calculator of unknown type"
 </pre>
 <p>Или мы можем связать найденное значение с другим именем</p>
-<pre>
+<pre class="prettyprint">
   case c@Calculator(_, _) =&gt; "Calculator: %s of unknown type".format(c)
 </pre>
 <h2 id="exception">Исключения</h2>
 <p>Исключения доступны в Scala при использовании синтаксиса try-catch-finally, который использует сопоставление с образцом.</p>
-<pre>
+<pre class="prettyprint">
 try {
   remoteCalculatorService.add(1, 2)
 } catch {
@@ -263,7 +264,7 @@ try {
 }
 </pre>
 <p><code>try</code> тоже ориентирован на выражения</p>
-<pre>
+<pre class="prettyprint">
 val result: Int = try {
   remoteCalculatorService.add(1, 2)
 } catch {
@@ -283,7 +284,7 @@ val result: Int = try {
       <div class="inner">
         <div class="container">
           <p>
-            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a><br />
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a>; Chinese simple translation by <a href="https://github.com/jasonqu">jasonqu</a><br />
             Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>

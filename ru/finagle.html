@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -39,7 +40,7 @@
       <p><a href="https://github.com/twitter/finagle">Finagle</a> &#8211; это <span class="caps">RPC</span> система от компании Twitter. <a href="http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html">Здесь</a> рассказывается о мотивах и основных принципа дизайна, <a href="https://github.com/twitter/finagle/blob/master/README.md">finagle <span class="caps">README</span></a> содержит больше детальной информации. Finagle помогает просто создавать надежные клиентские и серверные приложения.</p>
 <h2>Futures</h2>
 <p>Finagle использует <code>com.twitter.util.Future</code><sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup>, чтобы описать отложенные операции. Futures очень выразительны и компактны, они позволяют кратко описать параллельные и последовательные операции с большой ясностью. Futures управляют значениями, которые еще не доступны, с методами для регистрации обратного вызова, который вызывается, когда значение становится доступным. Они переворачивают с ног на голову &#8220;традиционную&#8221; модель асинхронных вычислений, которые обычно предоставляют <span class="caps">API</span>, похожее на это:</p>
-<pre>
+<pre class="prettyprint">
 Callback&lt;R&gt; cb = new Callback&lt;R&gt;() {
   void onComplete(R result) { … }
   void onFailure(Throwable error) { … }
@@ -48,7 +49,7 @@ Callback&lt;R&gt; cb = new Callback&lt;R&gt;() {
 dispatch(req, cb);
 </pre>
 <p>Здесь <code>Callback.onComplete</code> вызывается, когда результат операции <code>dispatch</code> становится доступен, и <code>Callback.onFailure</code> если операция провалилась. �� futures, мы переворачиваем поток управления:</p>
-<pre>
+<pre class="prettyprint">
 val future = dispatch(req)
 future onSuccess { value =&gt; … }
 future onFailure { error =&gt; … }
@@ -61,13 +62,13 @@ future onFailure { error =&gt; … }
 </blockquote>
 <p><code>flatMap</code> объединяет две сущности. Сигнатура метода описывает: данное успешное значение future <code>f</code> должно предоставить следущий <code>Future</code>. Результат этой операции другой <code>Future</code>, который завершится когда оба этих futures будут завершены. Если один из <code>Future</code> завершится с ошибкой, то данный <code>Future</code> также завершится с ошибкой. Это неявное чередование ошибок позволяет нам управлять ошибками только в тех местах, где это необходимо. <code>flatMap</code> это стандартное имя для данного комбинатора с заданной семантикой. В Scala есть короткая запись для этого вызова: конструкция <code>for</code>.</p>
 <p>Как пример, давайте предположим, что у нас есть методы <code>authenticate: Request -&gt; User</code>, и <code>rateLimit: User -&gt; Boolean</code>, тогда получим следующий код:</p>
-<pre>
+<pre class="prettyprint">
 val f = authenticate(request) flatMap { u =&gt;
   rateLimit(u) map { r =&gt; (u, r)
 }
 </pre>
 <p>С помощью конструкции for, мы можем написать:</p>
-<pre>
+<pre class="prettyprint">
 val f = for {
   u &lt;- authenticate(request)
   r &lt;- rateLimit(u)
@@ -76,7 +77,7 @@ val f = for {
 <p>используем future <code>f: Future[(User, Boolean)]</code>, который предоставляет объект пользователь и логическое выражение, которое сигнализирует о достигнутости пользователем предела. Заметьте, как здесь требуемая последовательная композиция: <code>rateLimit</code> берет аргумент выходного результата <code>authenticate</code></p>
 <h3>Параллельная композиция</h3>
 <p>Есть также несколько параллельных комбинаторов. Обычно они конвертируют последовательность <code>Future</code>-ов в <code>Future</code> последовательность, по-разному:</p>
-<pre>
+<pre class="prettyprint">
 object Future {
   …
   def collect[A](fs: Seq[Future[A]]): Future[Seq[A]]
@@ -88,7 +89,7 @@ object Future {
 <p><code>join</code> берет последовательнсоть <code>Future</code> типы которых можно смешать, возвращая <code>Future[Unit]</code>, который завершится, когда все остальные futures будут завершены (или завершится с ошибкой, если в одном из них ошибка). Это полезно для отслеживания завершения набора гетерогенных операций.</p>
 <p><code>select</code> возвращает <code>Future</code>, который завершится, когда первый из данных <code>Future</code>завершится, вместе с остальными незавершенными future.</p>
 <p>В совокупности, это дает нам мощное и краткое выражение основных сетевых операций. Этот гипотетический код выполняет установку ограничений (с целью сохранения локального кеша) параллелльно с управлением запросами пол��зователя на серверной стороне:</p>
-<pre>
+<pre class="prettyprint">
 def serve(request: Request): Future[Response] = {
   val userLimit: Future[(User, Boolean)] =
     for {
@@ -116,7 +117,7 @@ def serve(request: Request): Future[Response] = {
 <p><code>abstract class Service[-Req, +Rep] extends (Req =&gt; Future[Rep])</code></p>
 </blockquote>
 <p>Простой <span class="caps">HTTP</span> клиент может делать:</p>
-<pre>
+<pre class="prettyprint">
 service: Service[HttpRequest, HttpResponse]
 
 val f = service(HttpRequest("/", HTTP_1_1))
@@ -127,7 +128,7 @@ f onSuccess { res =&gt;
 }
 </pre>
 <p>Серверы реализуют <code>Service</code>:</p>
-<pre>
+<pre class="prettyprint">
 class MyServer 
   extends Service[HttpRequest, HttpResponse]
 {
@@ -142,7 +143,7 @@ class MyServer
 }
 </pre>
 <p>Комбинировать их просто. Простейший прокси может выглядеть так:</p>
-<pre>
+<pre class="prettyprint">
 class MyServer(client: Service[..])
   extends Service[HttpRequest, HttpResponse]
 {
@@ -156,12 +157,12 @@ class MyServer(client: Service[..])
 <p>где <code>rewriteReq</code> и <code>rewriteRes</code> могут предоставить протокол перевода, например.</p>
 <h2>Фильтры</h2>
 <p>Фильтры &#8211; это service преобразователи. Они полезны как для предоставления функциональности <em>обобщенный service</em>, так и для производства данного service в различных состояниях.</p>
-<pre>
+<pre class="prettyprint">
 abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
   extends ((ReqIn, Service[ReqOut, RepIn]) =&gt; Future[RepOut])
 </pre>
 <p>Его тип лучше рассмотреть схематически:</p>
-<pre>
+<pre class="prettyprint">
     ((ReqIn, Service[ReqOut, RepIn]) 
          =&gt; Future[RepOut])
 
@@ -170,7 +171,7 @@ abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 [ReqIn -&gt; (ReqOut -&gt; RepIn) -&gt; RepOut]
 </pre>
 <p>Здесь показан способ как вы можете написать фильтр, который является механизмом задержки service.</p>
-<pre>
+<pre class="prettyprint">
 class TimeoutFilter[Req, Rep](
     timeout: Duration, timer: util.Timer)
   extends Filter[Req, Rep, Req, Rep]
@@ -185,7 +186,7 @@ class TimeoutFilter[Req, Rep](
 }
 </pre>
 <p>Этот пример показывает как вы можете использовать аутентификацию (через сервис аутентификации) для того, чтобы конвертировать  <code>Service[AuthHttpReq, HttpRep]</code> в <code>Service[HttpReq, HttpRep]</code>.</p>
-<pre>
+<pre class="prettyprint">
 class RequireAuthentication(authService: AuthService)
   extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 {
@@ -204,7 +205,7 @@ class RequireAuthentication(authService: AuthService)
 }
 </pre>
 <p>Фильтры объединяются вместе с <code>andThen</code>. Предоставляя <code>Service</code> как аргумент для <code>andThen</code>, создающий  (отфильтрованный) <code>Service</code> (типы представлены для иллюстрации).</p>
-<pre>
+<pre class="prettyprint">
 val authFilter: Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 val timeoutfilter[Req, Rep]: Filter[Req, Rep, Req, Rep]
 val serviceRequiringAuth: Service[AuthHttpReq, HttpRep]
@@ -218,7 +219,7 @@ val authenticatedTimedOutService: Service[HttpReq, HttpRep] =
 <h2>Компоновщики</h2>
 <p>В конце концов, компоновщики собирают все вместе. <code>ClientBuilder</code> предоставляет экземпляр <code>Service</code>, дающий набор параметров, и <code>ServerBuilder</code> берущий экземпляр <code>Service</code> и отправляет ему входящие запросы. Для того чтобы определить тип <code>Service</code>, мы должны иметь <code>Codec</code>. Codec предоставляет нижележащий протокол реализации (например, <span class="caps">HTTP</span>, thrift, memcached). Оба компоновщика имеют много параметров, но их требуется совсем немного.</p>
 <p>Ниже представлен пример вызова <code>ClientBuilder</code> (типы представлены для иллюстрации):</p>
-<pre>
+<pre class="prettyprint">
 val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
   .codec(Http)
   .hosts("host1.twitter.com:10000,host2.twitter.com:10001,host3.twitter.com:10003")
@@ -229,7 +230,7 @@ val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
   .build()
 </pre>
 <p>Здесь создается клиент, который выравнивает нагрузку 3 данных хостов, устанавливая более чем 1 соединение на хост, и падает только после 2 неудач. Статистика собирается с помощью <a href="https://github.com/twitter/ostrich">ostrich</a>. Требуются следующие опции компоновщика (и они обычно присутствуют постоянно): <code>hosts</code> или <code>cluster</code>, <code>codec</code> и <code>hostConnectionLimit</code>.</p>
-<pre>
+<pre class="prettyprint">
 val myService: Service[HttpRequest, HttpResponse] = // provided by the user
 ServerBuilder()
   .codec(Http)
@@ -249,7 +250,7 @@ ServerBuilder()
       <div class="inner">
         <div class="container">
           <p>
-            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a><br />
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a>; Chinese simple translation by <a href="https://github.com/jasonqu">jasonqu</a><br />
             Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>

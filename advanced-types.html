@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -50,7 +51,7 @@
 <h2 id="viewbounds">View bounds (&#8220;type classes&#8221;)</h2>
 <p>Sometimes you don&#8217;t need to specify that one type is equal/sub/super another, just that you could fake it with conversions. A view bound specifies a type that can be &#8220;viewed as&#8221; another. This makes sense for an operation that needs to &#8220;read&#8221; an object but doesn&#8217;t modify the object.</p>
 <p><strong>Implicit</strong> functions allow automatic conversion. More precisely, they allow on-demand function application when this can help satisfy type inference. e.g.:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; implicit def strToInt(x: String) = x.toInt
 strToInt: (x: String)Int
 
@@ -64,12 +65,12 @@ scala&gt; math.max("123", 111)
 res1: Int = 123
 </pre>
 <p>view bounds, like type bounds demand such a function exists for the given type.  You specify a type bound with <code>&lt;%</code> e.g.,</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class Container[A &lt;% Int] { def addIt(x: A) = 123 + x }
 defined class Container
 </pre>
 <p>This says that <strong>A</strong> has to be &#8220;viewable&#8221; as <strong>Int</strong>.  Let&#8217;s try it.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; (new Container[String]).addIt("123")
 res11: Int = 246
 
@@ -83,7 +84,7 @@ scala&gt; (new Container[Float]).addIt(123.2F)
 </pre>
 <h2 id="otherbounds">Other type bounds</h2>
 <p>Methods can enforce more complex type bounds via implicit parameters. For example, <code>List</code> supports <code>sum</code> on numeric contents but not on others. Alas, Scala&#8217;s numeric types don&#8217;t all share a superclass, so we can&#8217;t just say <code>T &lt;: Number</code>. Instead, to make this work, Scala&#8217;s math library <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">defines an implicit <code>Numeric[T]</code> for the appropriate types T</a>.  Then in <code>List</code>&#8217;s definition uses it:</p>
-<pre>
+<pre class="prettyprint">
 sum[B &gt;: A](implicit num: Numeric[B]): B
 </pre>
 <p>If you invoke <code>List(1,2).sum()</code>, you don&#8217;t need to pass a <em>num</em> parameter; it&#8217;s set implicitly. But if you invoke <code>List("whoop").sum()</code>, it complains that it couldn&#8217;t set <code>num</code>.</p>
@@ -102,7 +103,7 @@ sum[B &gt;: A](implicit num: Numeric[B]): B
 		<td>A must be viewable as B</td>
 	</tr>
 </table>
-<pre>
+<pre class="prettyprint">
 scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
 defined class Container
 
@@ -113,7 +114,7 @@ scala&gt; (new Container("123")).addIt
 &lt;console&gt;:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
 </pre>
 <p>Similarly, given our previous implicit, we can relax the constraint to viewability:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A &lt;%&lt; Int) = 123 + value }
 defined class Container
 
@@ -122,7 +123,7 @@ res15: Int = 246
 </pre>
 <h3>Generic programming with views</h3>
 <p>In the Scala standard library, views are primarily used to implement generic functions over collections.  For example, the &#8220;min&#8221; function (on <strong>Seq[]</strong>), uses this technique:</p>
-<pre>
+<pre class="prettyprint">
 def min[B &gt;: A](implicit cmp: Ordering[B]): A = {
   if (isEmpty)
     throw new UnsupportedOperationException("empty.min")
@@ -135,7 +136,7 @@ def min[B &gt;: A](implicit cmp: Ordering[B]): A = {
 	<li>Items in the collections aren&#8217;t required to implement <strong>Ordered</strong>, but <strong>Ordered</strong> uses are still statically type checked.</li>
 	<li>You can define your own orderings without any additional library support:</li>
 </ul>
-<pre>
+<pre class="prettyprint">
 scala&gt; List(1,2,3,4).min
 res0: Int = 1
 
@@ -143,7 +144,7 @@ scala&gt; List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b 
 res3: Int = 4
 </pre>
 <p>As a sidenote, there are views in the standard library that translates <strong>Ordered</strong> into <strong>Ordering</strong> (and vice versa).</p>
-<pre>
+<pre class="prettyprint">
 trait LowPriorityOrderingImplicits {
   implicit def ordered[A &lt;: Ordered[A]]: Ordering[A] = new Ordering[A] {
     def compare(x: A, y: A) = x.compare(y)
@@ -152,7 +153,7 @@ trait LowPriorityOrderingImplicits {
 </pre>
 <h4>Context bounds &amp; implicitly[]</h4>
 <p>Scala 2.8 introduced a shorthand for threading through &amp; accessing implicit arguments.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def foo[A](implicit x: Ordered[A]) {}
 foo: [A](implicit x: Ordered[A])Unit
 
@@ -160,7 +161,7 @@ scala&gt; def foo[A : Ordered] {}
 foo: [A](implicit evidence$1: Ordered[A])Unit
 </pre>
 <p>Implicit values may be accessed via <strong>implicitly</strong></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; implicitly[Ordering[Int]]
 res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 </pre>
@@ -168,7 +169,7 @@ res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 <h2 id="higher">Higher-kinded types &amp; ad-hoc polymorphism</h2>
 <p>Scala can abstract over &#8220;higher kinded&#8221; types. For example, suppose that you needed to use several types of containers for several types of data. You might define a <code>Container</code> interface that might be implemented by means of several container types: an <code>Option</code>, a <code>List</code>, etc. You want to define an interface for using values in these containers without nailing down the values&#8217; type.</p>
 <p>This is analogous to function currying. For example, whereas &#8220;unary types&#8221; have constructors like <code>List[A]</code>, meaning we have to satisfy one &#8220;level&#8221; of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
 
 scala&gt; val container = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
@@ -182,7 +183,7 @@ res25: List[Int] = List(123)
 </pre>
 <p>Note that <strong>Container</strong> is polymorphic in a parameterized type (&#8220;container type&#8221;).</p>
 <p>If we combine using containers with implicits, we get &#8220;ad-hoc&#8221; polymorphism: the ability to write generic functions over containers.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
 
 scala&gt; implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
@@ -203,33 +204,33 @@ res34: List[(Int, Int)] = List((1,2))
 </pre>
 <h2 id="fbounded">F-bounded polymorphism</h2>
 <p>Often it&#8217;s necessary to access a concrete subclass in a (generic) trait. For example, imagine you had some trait that is generic, but can be compared to a particular subclass of that trait.</p>
-<pre>
+<pre class="prettyprint">
 trait Container extends Ordered[Container]
 </pre>
 <p>However, this now necessitates the compare method</p>
-<pre>
+<pre class="prettyprint">
 def compare(that: Container): Int
 </pre>
 <p>And so we cannot access the concrete subtype, e.g.:</p>
-<pre>
+<pre class="prettyprint">
 class MyContainer extends Container {
   def compare(that: MyContainer): Int
 }
 </pre>
 <p>fails to compile, since we are specifying Ordered for <strong>Container</strong>, not the particular subtype.</p>
 <p>To reconcile this, we instead use F-bounded polymorphism.</p>
-<pre>
+<pre class="prettyprint">
 trait Container[A &lt;: Container[A]] extends Ordered[A]
 </pre>
 <p>Strange type!  But note now how Ordered is parameterized on <strong>A</strong>, which itself is <strong>Container[A]</strong></p>
 <p>So, now</p>
-<pre>
+<pre class="prettyprint">
 class MyContainer extends Container[MyContainer] { 
   def compare(that: MyContainer) = 0 
 }
 </pre>
 <p>They are now ordered:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; List(new MyContainer, new MyContainer, new MyContainer)
 res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
 
@@ -237,7 +238,7 @@ scala&gt; List(new MyContainer, new MyContainer, new MyContainer).min
 res4: MyContainer = MyContainer@33dfeb30
 </pre>
 <p>Given that they are all subtypes of <strong>Container[_]</strong>, we can define another subclass &amp; create a mixed list of <strong>Container[_]</strong>:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
 defined class YourContainer
 
@@ -246,7 +247,7 @@ res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &g
   = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
 </pre>
 <p>Note how the resulting type is now lower-bound by <strong>YourContainer with MyContainer</strong>. This is the work of the type inferencer. Interestingly- this type doesn&#8217;t even need to make sense, it only provides a logical greatest lower bound for the unified type of the list. What happens if we try to use <strong>Ordered</strong> now?</p>
-<pre>
+<pre class="prettyprint">
 (new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
 &lt;console&gt;:9: error: could not find implicit value for parameter cmp:
   Ordering[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]]
@@ -254,7 +255,7 @@ res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &g
 <p>No <strong>Ordered[]</strong> exists for the unified type. Too bad.</p>
 <h2 id="structural">Structural types</h2>
 <p>Scala has support for <strong>structural types</strong> &#8212; type requirements are expressed by interface <em>structure</em> instead of a concrete type.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def foo(x: { def get: Int }) = 123 + x.get
 foo: (x: AnyRef{def get: Int})Int
 
@@ -264,7 +265,7 @@ res0: Int = 133
 <p>This can be quite nice in many situations, but the implementation uses reflection, so be performance-aware!</p>
 <h2 id="abstractmem">Abstract type members</h2>
 <p>In a trait, you can leave type members abstract.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; trait Foo { type A; val x: A; def getX: A = x }
 defined trait Foo
 
@@ -276,7 +277,7 @@ res4: java.lang.String = hey
 </pre>
 <p>This is often a useful trick when doing dependency injection, etc.</p>
 <p>You can refer to an abstract type variable using the hash-operator:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; trait Foo[M[_]] { type t[A] = M[A] }
 defined trait Foo
 
@@ -285,7 +286,7 @@ x: List[Int] = List(1)
 </pre>
 <h2 id="manifest">Type erasures &amp; manifests</h2>
 <p>As we know, type information is lost at compile time due to <em>erasure</em>. Scala features <strong>Manifests</strong>, allowing us to selectively recover type information. Manifests are provided as an implicit value, generated by the compiler as needed.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
 
 scala&gt; (new MakeFoo[String]).make
@@ -293,7 +294,7 @@ res10: String = ""
 </pre>
 <h2 id="finagle">Case study: Finagle</h2>
 <p>See: https://github.com/twitter/finagle</p>
-<pre>
+<pre class="prettyprint">
 trait Service[-Req, +Rep] extends (Req =&gt; Future[Rep])
 
 trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
@@ -320,7 +321,7 @@ trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 }
 </pre>
 <p>A service may authenticate requests with a filter.</p>
-<pre>
+<pre class="prettyprint">
 trait RequestWithCredentials extends Request {
   def credentials: Credentials
 }
@@ -340,7 +341,7 @@ class CredentialsFilter(credentialsParser: CredentialsParser)
 </pre>
 <p>Note how the underlying service requires an authenticated request, and that this is statically verified. Filters can thus be thought of as service transformers.</p>
 <p>Many filters can be composed together:</p>
-<pre>
+<pre class="prettyprint">
 val upFilter =
   logTransaction     andThen
   handleExceptions   andThen

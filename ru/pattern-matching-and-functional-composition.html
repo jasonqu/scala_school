@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -53,7 +54,7 @@
 </ul>
 <h2 id="composition">Объединение функций</h2>
 <p>Давайте создадим две полезные функции:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; def addUmm(x: String) = x + " umm"
 addUmm: (x: String)String
 
@@ -62,7 +63,7 @@ addAhem: (x: String)String
 </pre>
 <h3>compose</h3>
 <p><code>compose</code> создает новую функцию, которая является объединением других функций <code>f(g(x))</code></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val ummThenAhem = addAhem _ compose addUmm _
 ummThenAhem: (String) =&gt; String = &lt;function1&gt;
 
@@ -71,7 +72,7 @@ res0: String = well umm ahem
 </pre>
 <h3>andThen</h3>
 <p><code>andThen</code> похожа на  <code>compose</code>, но сначала вызывается первая функция, затем вторая <code>g(f(x))</code></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val ahemThenUmm = addAhem _ andThen addUmm _
 ahemThenUmm: (String) =&gt; String = &lt;function1&gt;
 
@@ -90,7 +91,7 @@ res1: String = well ahem umm
 <p><code>isDefinedAt</code> это метод PartialFunction, который может использоваться, чтобы определить, будет ли PartialFunction принимать данный аргумент.</p>
 <p><i>Заметьте</i> <code>PartialFunction</code> не связана с частично вызываемыми функциями, о которых мы говорили ранее.</p>
 <p><strong>Смотрите также:</strong> В Effective Scala описывается <a href="http://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Частичные функции">PartialFunction</a>.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val one: PartialFunction[Int, String] = { case 1 =&gt; "one" }
 one: PartialFunction[Int,String] = &lt;function1&gt;
 
@@ -101,12 +102,12 @@ scala&gt; one.isDefinedAt(2)
 res1: Boolean = false
 </pre>
 <p>Вы можете использовать частичную функцию.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; one(1)
 res2: String = one
 </pre>
 <p>PartialFunctions может быть объединена с чем-то новым, называемым OrElse, который показывает, определен ли PartialFunction с передаваемым аргументом.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val two: PartialFunction[Int, String] = { case 2 =&gt; "two" }
 two: PartialFunction[Int,String] = &lt;function1&gt;
 
@@ -136,7 +137,7 @@ res28: String = something else
 </pre>
 <h3 id="case">Тайна о case.</h3>
 <p>На прошлой неделе мы увидели нечто любопытное. Мы видели case утверждение там, где обычно использовалась функция.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; case class PhoneExt(name: String, ext: Int)
 defined class PhoneExt
 
@@ -155,7 +156,7 @@ res0: List[PhoneExt] = List(PhoneExt(steve,100))
       <div class="inner">
         <div class="container">
           <p>
-            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a><br />
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a>; Chinese simple translation by <a href="https://github.com/jasonqu">jasonqu</a><br />
             Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>

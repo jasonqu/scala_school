@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -48,26 +49,26 @@
 <h2 id="basics">Основы</h2>
 <h3>List</h3>
 <p>Стандартный связанный список.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; List(1, 2, 3)
 res0: List[Int] = List(1, 2, 3)
 </pre>
 <p>Вы можете создать его используя функциональный стиль.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 <p><strong>Смотрите также:</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/List.html"><span class="caps">API</span> документация</a></p>
 <h3>Set</h3>
 <p>Множество не содержащее одинаковых элементов</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 <p><strong>Смотрите также:</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html"><span class="caps">API</span> документация</a></p>
 <h3>Seq</h3>
 <p>Последов��тельности, имеющие определенный порядок</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Seq(1, 1, 2)
 res3: Seq[Int] = List(1, 1, 2)
 </pre>
@@ -75,7 +76,7 @@ res3: Seq[Int] = List(1, 1, 2)
 <p><strong>Смотрите также:</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/Seq.html"><span class="caps">API</span> документация</a></p>
 <h3>Map</h3>
 <p>Map &#8211; это хранилище ключ-значение.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map('a' -&gt; 1, 'b' -&gt; 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
@@ -100,7 +101,7 @@ res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 <h2 id="methods">Методы</h2>
 <h3>Traversable</h3>
 <p>Все методы, показанные ниже, доступны для обхода. Аргументы и возвращаемые типы не всегда будет выглядеть так, потому что подклассы могут быть свободно переопределены.</p>
-<pre>
+<pre class="prettyprint">
 def head : A
 def tail : Traversable[A]
 </pre>
@@ -131,7 +132,7 @@ def groupBy [K] (f: (A) =&gt; K) : Map[K, Traversable[A]]
 </code></p>
 <p>Преобразование:</p>
 <p>Вы можете конвертировать коллекцию одного типа в другой.</p>
-<pre>
+<pre class="prettyprint">
 def toArray : Array[A]
 def toArray [B &gt;: A] (implicit arg0: ClassManifest[B]) : Array[B]
 def toBuffer [B &gt;: A] : Buffer[B]
@@ -147,23 +148,23 @@ def toString () : String
 def toTraversable : Traversable[A]
 </pre>
 <p>Давайте сконвертируем Map в Array. Вы получите Array, содержащий пары ключ-значение.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map(1 -&gt; 2).toArray
 res41: Array[(Int, Int)] = Array((1,2))
 </pre>
 <h3>Итерирование</h3>
 <p>Добавляет возможность итерирования.</p>
-<pre>
+<pre class="prettyprint">
   def iterator: Iterator[A]
 </pre>
 <p>Что м��жет дать вам итератор?</p>
-<pre>
+<pre class="prettyprint">
 def hasNext(): Boolean
 def next(): A
 </pre>
 <p>Похоже на Java. Вы не будет часто видеть итераторы в программе на Scala, у вас больше шансов увидеть функциональные комбинаторы или расширенный for.</p>
 <h3>Set</h3>
-<pre>
+<pre class="prettyprint">
   def contains(key: A): Boolean
   def +(elem: A): Set[A]
   def -(elem: A): Set[A]
@@ -171,30 +172,30 @@ def next(): A
 <h3>Map</h3>
 <p>Последовательность пар ключ-значение с поиском по ключу.</p>
 <p>Передайте список пар внутрь apply(), например так</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map("a" -&gt; 1, "b" -&gt; 2)
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
 </pre>
 <p>Или так:</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map(("a", 2), ("b", 2))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
 </pre>
 <h6>Отступление</h6>
 <p>Что это за знак <code>-&gt;</code>? Это не какой-т�� специальный синтаксис, это метод, который возвращает кортеж.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; "a" -&gt; 2
 
 res0: (java.lang.String, Int) = (a,2)
 </pre>
 <p>Помните, что это всего лишь синтаксический сахар для</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; "a".-&gt;(2)
 
 res1: (java.lang.String, Int) = (a,2)
 </pre>
 <p>Вы можете также использовать знак <code>++</code> для создания объектов</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
 </pre>
@@ -202,31 +203,31 @@ res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (
 <p><strong>HashSet и HashMap</strong> Взгляните, самые часто используемые формы этих коллекций. <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html">HashSet <span class="caps">API</span></a>, <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html">HashMap <span class="caps">API</span></a></p>
 <p><strong>TreeMap</strong> &#8211; это подкласс SortedMap, дает вам упорядоченный доступ к элементам. <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html">TreeMap <span class="caps">API</span></a></p>
 <p><strong>Vector</strong> Быстрая случайная выборка и быстрое обновление. <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html">Vector <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 <p><strong>Range</strong> Упорядоченная последовательность целых чисел, отделенных определенным интервалом. Вы будете часто видеть их там, где до этого использовались циклы. <a href="http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html">Range <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; for (i &lt;- 1 to 3) { println(i) }
 1
 2
 3
 </pre>
 <p>Range имеет стандартные функциональные комбинаторы.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; (1 to 3).map { i =&gt; i }
 res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 <h3>Стандартные значения</h3>
 <p>Используя методы apply в трейтах, вы получаете экземпляр стандартной реализации. Например, Iterable(1, 2) возвратит List как стандартную реализацию метода apply.</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Iterable(1, 2)
 
 res0: Iterable[Int] = List(1, 2)
 </pre>
 <p>То же самое с Seq</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Seq(1, 2)
 res3: Seq[Int] = List(1, 2)
 
@@ -238,7 +239,7 @@ warning: there were deprecation warnings; re-run with -deprecation for details
 res2: Seq[Int] = List(1, 2)
 </pre>
 <p>Set</p>
-<pre>
+<pre class="prettyprint">
 scala&gt; Set(1, 2)
 res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
@@ -260,7 +261,7 @@ res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 <h2 id="mutable">Mutable</h2>
 <p>Все классы, которые мы обсуждали выше были immutable. Давайте обсудим часто используемые mutable коллекции.</p>
 <p><strong>HashMap</strong> определяет <code>getOrElseUpdate</code>, <code>+=</code> <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html">HashMap <span class="caps">API</span></a></p>
-<pre>
+<pre class="prettyprint">
 scala&gt; val numbers = collection.mutable.Map(1 -&gt; 2)
 numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
 
@@ -283,7 +284,7 @@ res56: numbers.type = Map((2,3), (4,1), (1,2))
 <p><strong>StringBuilder</strong> Interestingly, StringBuilder is a collection. <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html"><span class="caps">API</span> документация</a></p>
 <h2 id="java">Жизнь с Java</h2>
 <p>Вы можете просто перемещаться между Java и Scala коллекциями, используя набор неявных преобразований, которые доступны в пакете JavaConversions.</p>
-<pre>
+<pre class="prettyprint">
    import scala.collection.JavaConversions._
    val sl = new scala.collection.mutable.ListBuffer[Int]
    val jl : java.util.List[Int] = sl
@@ -291,7 +292,7 @@ res56: numbers.type = Map((2,3), (4,1), (1,2))
    assert(sl eq sl2)
 </pre>
 <p>Двусторонние преобразования:</p>
-<pre>
+<pre class="prettyprint">
 scala.collection.Iterable &lt;=&gt; java.lang.Iterable
 scala.collection.Iterable &lt;=&gt; java.util.Collection
 scala.collection.Iterator &lt;=&gt; java.util.{ Iterator, Enumeration }
@@ -301,7 +302,7 @@ scala.collection.mutable.Map &lt;=&gt; java.util.{ Map, Dictionary }
 scala.collection.mutable.ConcurrentMap &lt;=&gt; java.util.concurrent.ConcurrentMap
 </pre>
 <p>Дополнительно, имеется набор односторонних преобразований:</p>
-<pre>
+<pre class="prettyprint">
 scala.collection.Seq =&gt; java.util.List
 scala.collection.mutable.Seq =&gt; java.util.List
 scala.collection.Set =&gt; java.util.Set
@@ -313,7 +314,7 @@ scala.collection.Map =&gt; java.util.Map
       <div class="inner">
         <div class="container">
           <p>
-            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a><br />
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a>, <a href="http://twitter.com/marius" target="_blank">@marius</a>, and <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a>; Chinese simple translation by <a href="https://github.com/jasonqu">jasonqu</a><br />
             Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>

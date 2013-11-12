@@ -10,6 +10,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
 
     <!-- Le styles -->
     <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
@@ -48,7 +49,7 @@
 </ul>
 <h2>Javap</h2>
 <p>javap is a tool that ships with the <span class="caps">JDK</span>.  Not the <span class="caps">JRE</span>.  There&#8217;s a difference.  Javap decompiles class definitions and shows you what&#8217;s inside.  Usage is pretty simple</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
 public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
@@ -57,7 +58,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 }
 </pre>
 <p>If you&#8217;re hardcore you can look at byte code</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
 Compiled from "Scalaisms.scala"
 public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
@@ -84,7 +85,7 @@ public static void $init$(com.twitter.interop.MyTrait);
 	<li>Exceptions</li>
 </ul>
 <p>We&#8217;ll construct a simple scala class to show the full range of entities</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop
 
 import java.io.IOException
@@ -116,7 +117,7 @@ class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: Stri
 	<li>by default, class parameters are effectively constructor args in Java land.  This means you can&#8217;t access them outside the class.</li>
 	<li>declaring a class parameter as a val/var is the same as this code</li>
 </ul>
-<pre>
+<pre class="prettyprint">
 class SimpleClass(acc_: String) {
   val acc = acc_
 }
@@ -130,18 +131,18 @@ class SimpleClass(acc_: String) {
 <ul>
 	<li>vars get a method <name>_$eq defined.  You can call it like so</li>
 </ul>
-<pre>
+<pre class="prettyprint">
 foo$_eq("newfoo");
 </pre>
 <h3>BeanProperty</h3>
 <p>You can annotate vals and vars with the @BeanProperty annotation.  This generates getters/setters that look like <span class="caps">POJO</span> getter/setter definitions.  If you want the isFoo variant, use the BooleanBeanProperty annotation.  The ugly foo$_eq becomes</p>
-<pre>
+<pre class="prettyprint">
 setFoo("newfoo");
 getFoo();
 </pre>
 <h3>Exceptions</h3>
 <p>Scala doesn&#8217;t have checked exceptions.  Java does.  This is a philosophical debate we won&#8217;t get into, but it <strong>does</strong> matter when you want to catch an exception in Java.  The definitions of dangerFoo and dangerBar demonstrate this.  In Java I can&#8217;t do this</p>
-<pre>
+<pre class="prettyprint">
         // exception erasure!
         try {
             s.dangerFoo();
@@ -156,7 +157,7 @@ getFoo();
 <p>A full list of Scala annotations for supporting Java interop can be found here http://www.scala-lang.org/node/106.</p>
 <h2>Traits</h2>
 <p>How do you get an interface + implementation?  Let&#8217;s take a simple trait definition and look</p>
-<pre>
+<pre class="prettyprint">
 trait MyTrait {
   def traitName:String
   def upperTraitName = traitName.toUpperCase
@@ -164,7 +165,7 @@ trait MyTrait {
 </pre>
 <p>This trait has one abstract method (traitName) and one implemented method (upperTraitName).  What does Scala generate for us?  An interface named MyTrait, and a companion implementation named MyTrait$class.</p>
 <p>The implementation of MyTrait is what you&#8217;d expect</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
 public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
@@ -173,7 +174,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 }
 </pre>
 <p>The implementation of MyTrait$class is more interesting</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
 Compiled from "Scalaisms.scala"
 public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
@@ -183,7 +184,7 @@ public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object
 </pre>
 <p>MyTrait$class has only static methods that take an instance of MyTrait.  This gives us a clue as to how to extend a Trait in Java.</p>
 <p>Our first try is the following</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop;
 
 public class JTraitImpl implements MyTrait {
@@ -199,14 +200,14 @@ public class JTraitImpl implements MyTrait {
 }
 </pre>
 <p>And we get the following error</p>
-<pre>
+<pre class="prettyprint">
 [info] Compiling main sources...
 [error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
 [error] public class JTraitImpl implements MyTrait {
 [error]        ^
 </pre>
 <p>We <em>could</em> just implement this ourselves.  But there&#8217;s a sneakier way.</p>
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop;
 
     public String upperTraitName() {
@@ -217,7 +218,7 @@ package com.twitter.interop;
 <h2>Objects</h2>
 <p>Objects are the way Scala implements static methods/singletons.  Using them from Java is a bit odd.  There isn&#8217;t a stylistically perfect way to use them, but in Scala 2.8 it&#8217;s not terrible</p>
 <p>A Scala object is compiled to a class that has a trailing &#8220;$&#8221;.  Let&#8217;s set up a class and a companion object</p>
-<pre>
+<pre class="prettyprint">
 class TraitImpl(name: String) extends MyTrait {
   def traitName = name
 }
@@ -228,11 +229,11 @@ object TraitImpl {
 }
 </pre>
 <p>We can naïvely access this in Java like so</p>
-<pre>
+<pre class="prettyprint">
 MyTrait foo = TraitImpl$.MODULE$.apply("foo");
 </pre>
 <p>Now you may be asking yourself, <span class="caps">WTF</span>?  This is a valid response.  Let&#8217;s look at what&#8217;s actually inside TraitImpl$</p>
-<pre>
+<pre class="prettyprint">
 local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
 Compiled from "Scalaisms.scala"
 public final class com.twitter.interop.TraitImpl$ extends java.lang.Object implements scala.ScalaObject{
@@ -245,12 +246,12 @@ public final class com.twitter.interop.TraitImpl$ extends java.lang.Object imple
 <p>There actually aren&#8217;t any static methods.  Instead it has a static member named <span class="caps">MODULE</span>$.  The method implementations delegate to this member.  This makes access ugly, but workable if you know to use <span class="caps">MODULE</span>$.</p>
 <h3>Forwarding Methods</h3>
 <p>In Scala 2.8 dealing with Objects got quite a bit easier.  If you have a class with a companion object, the 2.8 compiler generates forwarding methods on the companion class.  So if you built with 2.8, you can access methods in the TraitImpl Object like so</p>
-<pre>
+<pre class="prettyprint">
 MyTrait foo = TraitImpl.apply("foo");
 </pre>
 <h2>Closures Functions</h2>
 <p>One of Scala&#8217;s most important features is the treatment of functions as first class citizens.  Let&#8217;s define a class that defines some methods that take functions as arguments.</p>
-<pre>
+<pre class="prettyprint">
 class ClosureClass {
   def printResult[T](f: =&gt; T) = {
     println(f)
@@ -262,12 +263,12 @@ class ClosureClass {
 }
 </pre>
 <p>In Scala I can call this like so</p>
-<pre>
+<pre class="prettyprint">
 val cc = new ClosureClass
 cc.printResult { "HI MOM" }
 </pre>
 <p>In Java it&#8217;s not so easy, but it&#8217;s not terrible either.  Let&#8217;s see what ClosureClass actually compiled to:</p>
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
 Compiled from "Scalaisms.scala"
 public class com.twitter.interop.ClosureClass extends java.lang.Object implements scala.ScalaObject{
@@ -278,7 +279,7 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
 </pre>
 <p>This isn&#8217;t so scary.  &#8220;f: =&gt; T&#8221; translates to &#8220;Function0&#8221;, and &#8220;f: String =&gt; T&#8221; translates to &#8220;Function1&#8221;.  Scala actually defines Function0 through Function22, supporting this stuff up to 22 arguments.  Which really should be enough.</p>
 <p>Now we just need to figure out how to get those things going in Java.  Turns out Scala provides an AbstractFunction0 and an AbstractFunction1 we can pass in like so</p>
-<pre>
+<pre class="prettyprint">
     @Test public void closureTest() {
         ClosureClass c = new ClosureClass();
         c.printResult(new AbstractFunction0() {
