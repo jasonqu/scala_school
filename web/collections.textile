@@ -35,7 +35,7 @@ Scala provides some nice collections.
 
 h2(#Lists). Lists
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = List(1, 2, 3, 4)
 numbers: List[Int] = List(1, 2, 3, 4)
 </pre>
@@ -44,7 +44,7 @@ h2(#Sets). Sets
 
 Sets have no duplicates
 
-<pre>
+<pre class="prettyprint">
 scala> Set(1, 1, 2)
 res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
@@ -53,14 +53,14 @@ h2(#Tuple). Tuple
 
 A tuple groups together simple logical collections of items without using a class.
 
-<pre>
+<pre class="prettyprint">
 scala> val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
 </pre>
 
 Unlike case classes, they don't have named accessors, instead they have accessors that are named by their position and is 1-based rather than 0-based.
 
-<pre>
+<pre class="prettyprint">
 scala> hostPort._1
 res0: String = localhost
 
@@ -70,7 +70,7 @@ res1: Int = 80
 
 Tuples fit with pattern matching nicely.
 
-<pre>
+<pre class="prettyprint">
 hostPort match {
   case ("localhost", port) => ...
   case (host, port) => ...
@@ -79,7 +79,7 @@ hostPort match {
 
 Tuple has some special sauce for simply making Tuples of 2 values: <code>-></code>
 
-<pre>
+<pre class="prettyprint">
 scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
@@ -90,7 +90,7 @@ h2(#Maps). Maps
 
 It can hold basic datatypes.
 
-<pre>
+<pre class="prettyprint">
 Map(1 -> 2)
 Map("foo" -> "bar")
 </pre>
@@ -101,11 +101,11 @@ Map() also uses that variable argument syntax we learned back in Lesson #1: <cod
 
 Maps can themselves contain Maps or even functions as values.
 
-<pre>
+<pre class="prettyprint">
 Map(1 -> Map("foo" -> "bar"))
 </pre>
 
-<pre>
+<pre class="prettyprint">
 Map("timesTwo" -> { timesTwo(_) })
 </pre>
 
@@ -115,7 +115,7 @@ h2(#Option). Option
 
 The basic interface for Option looks like:
 
-<pre>
+<pre class="prettyprint">
 trait Option[T] {
   def isDefined: Boolean
   def get: T
@@ -129,7 +129,7 @@ Let's look at an example of how Option is used:
 
 <code>Map.get</code> uses <code>Option</code> for its return type. Option tells you that the method might not return what you're asking for.
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = Map(1 -> "one", 2 -> "two")
 numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
 
@@ -144,7 +144,7 @@ Now our data appears trapped in this <code>Option</code>. How do we work with it
 
 A first instinct might be to do something conditionally based on the <code>isDefined</code> method.
 
-<pre>
+<pre class="prettyprint">
 // We want to multiply the number by two, otherwise return 0.
 val result = if (res1.isDefined) {
   res1.get * 2
@@ -180,14 +180,14 @@ h2(#map). map
 
 Evaluates a function over each element in the list, returning a list with the same number of elements.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
 or pass in a partially evaluated function
 
-<pre>
+<pre class="prettyprint">
 
 scala> def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
@@ -200,7 +200,7 @@ h2(#foreach). foreach
 
 foreach is like map but returns nothing. foreach is intended for side-effects only.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foreach((i: Int) => i * 2)
 </pre>
 
@@ -208,7 +208,7 @@ returns nothing.
 
 You can try to store the return in a value but it'll be of type Unit (i.e. void)
 
-<pre>
+<pre class="prettyprint">
 scala> val doubled = numbers.foreach((i: Int) => i * 2)
 doubled: Unit = ()
 </pre>
@@ -217,12 +217,12 @@ h2(#filter). filter
 
 removes any elements where the function you pass in evaluates to false.  Functions that return a Boolean are often called predicate functions.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.filter((i: Int) => i % 2 == 0)
 res0: List[Int] = List(2, 4)
 </pre>
 
-<pre>
+<pre class="prettyprint">
 scala> def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
@@ -234,7 +234,7 @@ h2(#zip). zip
 
 zip aggregates the contents of two lists into a single list of pairs.
 
-<pre>
+<pre class="prettyprint">
 scala> List(1, 2, 3).zip(List("a", "b", "c"))
 res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
 </pre>
@@ -243,7 +243,7 @@ h2(#partition). partition
 
 <code>partition</code> splits a list based on where it falls with respect to a predicate function.
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 scala> numbers.partition(_ %2 == 0)
 res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
@@ -253,7 +253,7 @@ h2(#find). find
 
 find returns the first element of a collection that matches a predicate function.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.find((i: Int) => i > 5)
 res0: Option[Int] = Some(6)
 </pre>
@@ -262,21 +262,21 @@ h2(#drop). drop & dropWhile
 
 <code>drop</code> drops the first i elements
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
 <code>dropWhile</code> removes the first elements that match a predicate function. For example, if we <code>dropWhile</code> odd numbers from our list of numbers, <code>1</code> gets dropped (but not <code>3</code> which is "shielded" by <code>2</code>).
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.dropWhile(_ % 2 != 0)
 res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
 </pre>
 
 h2(#fold). foldLeft
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldLeft(0)((m: Int, n: Int) => m + n)
 res0: Int = 55
 </pre>
@@ -286,7 +286,7 @@ acts as an accumulator.
 
 Seen visually:
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 0 n: 1
 m: 1 n: 2
@@ -305,7 +305,7 @@ h3. foldRight
 
 Is the same as foldLeft except it runs in the opposite direction.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 10 n: 0
 m: 9 n: 10
@@ -324,7 +324,7 @@ h2(#flatten). flatten
 
 flatten collapses one level of nested structure.
 
-<pre>
+<pre class="prettyprint">
 scala> List(List(1, 2), List(3, 4)).flatten
 res0: List[Int] = List(1, 2, 3, 4)
 </pre>
@@ -333,7 +333,7 @@ h2(#flatMap). flatMap
 
 flatMap is a frequently used combinator that combines mapping and flattening. flatMap takes a function that works on the nested lists and then concatenates the results back together.
 
-<pre>
+<pre class="prettyprint">
 scala> val nestedNumbers = List(List(1, 2), List(3, 4))
 nestedNumbers: List[List[Int]] = List(List(1, 2), List(3, 4))
 
@@ -343,7 +343,7 @@ res0: List[Int] = List(2, 4, 6, 8)
 
 Think of it as short-hand for mapping and then flattening:
 
-<pre>
+<pre class="prettyprint">
 scala> nestedNumbers.map((x: List[Int]) => x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
@@ -360,7 +360,7 @@ What we'd like is to be able to write our own functional combinators.
 
 Interestingly, every functional combinator shown above can be written on top of fold.  Let's see some examples.
 
-<pre>
+<pre class="prettyprint">
 def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
   numbers.foldRight(List[Int]()) { (x: Int, xs: List[Int]) =>
     fn(x) :: xs
@@ -377,14 +377,14 @@ h2(#vsMap). Map?
 
 All of the functional combinators shown work on Maps, too.  Maps can be thought of as a list of pairs so the functions you write work on a pair of the keys and values in the Map.
 
-<pre>
+<pre class="prettyprint">
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
 Now filter out every entry whose phone extension is lower than 200.
 
-<pre>
+<pre class="prettyprint">
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
@@ -393,7 +393,7 @@ Because it gives you a tuple, you have to pull out the keys and values with thei
 
 Lucky us, we can actually use a pattern match to extract the key and value nicely.
 
-<pre>
+<pre class="prettyprint">
 scala> extensions.filter({case (name, extension) => extension < 200})
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>

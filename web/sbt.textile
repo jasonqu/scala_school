@@ -32,14 +32,14 @@ h2. Getting Started
 * Download the jar:http://code.google.com/p/simple-build-tool/downloads/list
 * Create an sbt shell script that calls the jar, e.g.
 
-<pre>
+<pre class="prettyprint">
 java -Xmx512M -jar sbt-launch.jar "$@"
 </pre>
 
 * make sure it's executable and in your path
 * run sbt to create your project
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects]$ sbt
 Project does not exist, create new project? (y/N/s) y
 Name: sample
@@ -87,7 +87,7 @@ We'll be creating a simple JSON parser for simple tweets.  Add the
 following code to
 src/main/scala/com/twitter/sample/SimpleParser.scala
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 case class SimpleParsed(id: Long, text: String)
@@ -115,19 +115,19 @@ h2. Testing in the Console
 
 SBT can be used both as a command line script and as a build console.  We'll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to SBT, e.g.
 
-<pre>
+<pre class="prettyprint">
 sbt test
 </pre>
 Note that if a command takes arguments, you need to quote the entire
 argument path, e.g.
-<pre>
+<pre class="prettyprint">
 sbt 'test-only com.twitter.sample.SampleSpec'
 </pre>
 It's weird that way.
 
 Anyway. To start working with our code, launch sbt
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/sbt-sample]$ sbt
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
@@ -138,7 +138,7 @@ SBT allows you to start a Scala REPL with all your project
 dependencies loaded. It compiles your project source before launching
 the console, providing us a quick way to bench test our parser.
 
-<pre>
+<pre class="prettyprint">
 > console
 [info] 
 [info] == compile ==
@@ -173,7 +173,7 @@ scala>
 
 Our code has compiled, and we're provide the typical Scala prompt.  We'll create a new parser, an exemplar tweet, and ensure it "works"
 
-<pre>
+<pre class="prettyprint">
 scala> import com.twitter.sample._            
 import com.twitter.sample._
 
@@ -195,7 +195,7 @@ Our simple parser works for this very small set of inputs, but we want to add te
 
 SBT considers Scala files in the project/build directory to be project definitions.  Add the following to project/build/SampleProject.scala
 
-<pre>
+<pre class="prettyprint">
 import sbt._
 
 class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
@@ -208,7 +208,7 @@ A project definition is an SBT class.  In our case we extend SBT's DefaultProjec
 
 You declare dependencies by specifying a val that is a dependency.  SBT uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency
 
-<pre>
+<pre class="prettyprint">
 <dependency>
   <groupId>org.codehaus.jackson</groupId>
   <artifactId>jackson-core-asl</artifactId>
@@ -224,7 +224,7 @@ You declare dependencies by specifying a val that is a dependency.  SBT uses ref
 
 Now we can pull down dependencies for our project.  From the command line (not the sbt console), run sbt update
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/sbt-sample]$ sbt update
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using SampleProject with sbt 0.7.4 and Scala 2.7.7
@@ -249,7 +249,7 @@ h2. Adding Tests
 Now that we have a test library added, put the following code in
 src/test/scala/com/twitter/sample/SimpleParserSpec.scala
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 import org.specs._
@@ -273,7 +273,7 @@ object SimpleParserSpec extends Specification {
 
 In the sbt console, run test
 
-<pre>
+<pre class="prettyprint">
 > test
 [info] 
 [info] == compile ==
@@ -327,7 +327,7 @@ In the sbt console, run test
 
 Our test works!  Now we can add more.  One of the nice things SBT provides is a way to run triggered actions.  Prefacing an action with a tilde starts up a loop that runs the action any time source files change.  Lets run ~test and see what happens.
 
-<pre>
+<pre class="prettyprint">
 [info] == test ==
 [success] Successful.
 [info] 
@@ -337,7 +337,7 @@ Our test works!  Now we can add more.  One of the nice things SBT provides is a 
 
 Now let's add the following test cases
 
-<pre>
+<pre class="prettyprint">
     "reject a non-JSON tweet" in {
       val tweet = """"id":1,"text":"foo""""
       parser.parse(tweet) match {
@@ -368,7 +368,7 @@ Now let's add the following test cases
 
 After we save our file, SBT detects our changes, runs tests, and informs us our parser is lame
 
-<pre>
+<pre class="prettyprint">
 [info] == com.twitter.sample.SimpleParserSpec ==
 [info] SimpleParserSpec
 [info] SimpleParser should
@@ -382,7 +382,7 @@ After we save our file, SBT detects our changes, runs tests, and informs us our 
 
 So let's rework our JSON parser to be real
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 import org.codehaus.jackson._
@@ -430,7 +430,7 @@ class SimpleParser {
 
 This is a simple Jackson parser.  When we save, SBT recompiles our code and reruns our tests.  Getting better!
 
-<pre>
+<pre class="prettyprint">
 info] SimpleParser should
 [info]   + work with basic tweet
 [info]   + reject a non-JSON tweet
@@ -443,7 +443,7 @@ info] SimpleParser should
 Uh oh.  We need to check for nested objects.  Let's add some ugly
 guards to our token reading loop.
 
-<pre>
+<pre class="prettyprint">
   def parse(str: String) = {
     val parser = parserFactory.createJsonParser(str)
     var nested = 0
@@ -490,7 +490,7 @@ At this point we can run the package command to generate a jar file.  However we
 
 The first step is include StandardProject as an SBT plugin.  Plugins are a way to introduce dependencies to your build, rather than your project.  These dependencies are defined in project/plugins/Plugins.scala.  Add the following to the Plugins.scala file.
 
-<pre>
+<pre class="prettyprint">
 import sbt._
 
 class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
@@ -503,7 +503,7 @@ Note that we've specified a maven repository as well as a dependency.  That's be
 
 We'll also update our project definition to extend StandardProject, include an SVN publishing trait, and define the repository we wish to publish to.  Alter SampleProject.scala to the following
 
-<pre>
+<pre class="prettyprint">
 import sbt._
 import com.twitter.sbt._
 
@@ -517,7 +517,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
 
 Now if we run the publish action we'll see the following
 
-<pre>
+<pre class="prettyprint">
 [info] == deliver ==
 IvySvn Build-Version: null
 IvySvn Build-DateTime: null
@@ -553,19 +553,19 @@ h2. Adding Tasks
 
 Tasks are Scala functions.  The simplest way to add a task is to include a val in your project definition using the task method, e.g.
 
-<pre>
+<pre class="prettyprint">
 lazy val print = task {log.info("a test action"); None}
 </pre>
 
 If you want dependencies and a description you can add them like this
 
-<pre>
+<pre class="prettyprint">
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
 
 If we reload our project and run the print action we'll see the following
 
-<pre>
+<pre class="prettyprint">
 > print
 [info] 
 [info] == print ==
@@ -579,7 +579,7 @@ If we reload our project and run the print action we'll see the following
 
 So it works.  If you're defining a task in a single project this works just fine.  However if you're defining this in a plugin it's fairly inflexible.  I may want to
 
-<pre>
+<pre class="prettyprint">
 lazy val print = printAction
 def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
 def printTask = task {log.info("a test action"); None}
@@ -587,7 +587,7 @@ def printTask = task {log.info("a test action"); None}
 
 This allows consumers to override the task itself, the dependencies and/or description of the task, or the action.  Most built in SBT actions follow this pattern.  As an example, we can modify the builtin package task to print the current timestamp by doing the following
 
-<pre>
+<pre class="prettyprint">
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>

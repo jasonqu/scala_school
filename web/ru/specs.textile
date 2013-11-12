@@ -28,7 +28,7 @@ h2(#example). Расширяем Спецификацию
 
 Давайте сразу посмотрим код.
 
-<pre>
+<pre class="prettyprint">
 import org.specs._
 
 object ArithmeticSpec extends Specification {
@@ -57,7 +57,7 @@ h3. Повторяемость
 
 Заметили, что оба теста содержат @add@ в своем имени? Мы избавиться от этого благодаря *вложенным* ожиданиям.
 
-<pre>
+<pre class="prettyprint">
 import org.specs._
 
 object ArithmeticSpec extends Specification {
@@ -76,7 +76,7 @@ object ArithmeticSpec extends Specification {
 
 h2(#scope). Модель выполнения
 
-<pre>
+<pre class="prettyprint">
 object ExecSpec extends Specification {
   "Mutations are isolated" should {
     var x = 0
@@ -95,7 +95,7 @@ h2(#setup). Установка, Распаковка
 
 h3. doBefore и doAfter
 
-<pre>
+<pre class="prettyprint">
 "my system" should {
   doBefore { resetTheSystem() /** определенная пользователем функция сброса */ }
   "mess up the system" in {...}
@@ -110,7 +110,7 @@ h3. doFirst и doLast
 
 @doFirst@/@doLast@ предназначены во время установки (здесь нужен пример, я не использую их)
 
-<pre>
+<pre class="prettyprint">
 "Foo" should {
   doFirst { openTheCurtains() }
   "test stateless methods" in {...}
@@ -127,7 +127,7 @@ h3. mustEqual
 
 Вы уже видели несколько примеров с mustEqual.
 
-<pre>
+<pre class="prettyprint">
 1 mustEqual 1
 
 "a" mustEqual "a"
@@ -137,7 +137,7 @@ h3. mustEqual
 
 h3. элементы в Sequence
 
-<pre>
+<pre class="prettyprint">
 val numbers = List(1, 2, 3)
 
 numbers must contain(1)
@@ -152,7 +152,7 @@ List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4),
 
 h3. Записи в Map
 
-<pre>
+<pre class="prettyprint">
 map must haveKey(k)
 map must notHaveKey(k)
 
@@ -162,7 +162,7 @@ map must notHaveValue(v)
 
 h3. Числа
 
-<pre>
+<pre class="prettyprint">
 a must beGreaterThan(b)
 a must beGreaterThanOrEqualTo(b)
 
@@ -175,7 +175,7 @@ a must beCloseTo(b, delta)
 
 h3. Опции
 
-<pre>
+<pre class="prettyprint">
 a must beNone
 
 a must beSome[Type]
@@ -187,7 +187,7 @@ a must beSome(value)
 
 h3. throwA
 
-<pre>
+<pre class="prettyprint">
 a must throwA[WhateverException]
 </pre>
 
@@ -195,13 +195,13 @@ a must throwA[WhateverException]
 
 Вы можете выдать специальное сообщение
 
-<pre>
+<pre class="prettyprint">
 a must throwA(WhateverException("message"))
 </pre>
 
 Вы можете также поймать определенное исключение:
 
-<pre>
+<pre class="prettyprint">
 a must throwA(new Exception) like {
   case Exception(m) => m.startsWith("bad")
 }
@@ -210,13 +210,13 @@ a must throwA(new Exception) like {
 
 h3. Пишем свои условные конструкции
 
-<pre>
+<pre class="prettyprint">
 import org.specs.matcher.Matcher
 </pre>
 
 h4. Подобно val
 
-<pre>
+<pre class="prettyprint">
 "A matcher" should {
   "be created as a val" in {
     val beEven = new Matcher[Int] {
@@ -233,7 +233,7 @@ h4. Подобно val
 
 h4. Подобно case классу
 
-<pre>
+<pre class="prettyprint">
 case class beEven(b: Int) extends Matcher[Int]() {
   def apply(n: => Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
 }
@@ -243,7 +243,7 @@ case class beEven(b: Int) extends Matcher[Int]() {
 
 h2(#mocks). Подделки(Mocks)
 
-<pre>
+<pre class="prettyprint">
 import org.specs.Specification
 import org.specs.mock.Mockito
 
@@ -270,7 +270,7 @@ h2(#spies). Шпионы(Spies)
 
 Шпионы могут также быть использованы для того, чтобы сделать некоторую "частичную подделку" реальных объектов:
 
-<pre>
+<pre class="prettyprint">
 val list = new LinkedList[String]
 val spiedList = spy(list)
 
@@ -287,14 +287,14 @@ there was one(spiedList).add("one")
 
 Однако, работа со шпионами может быть сложной:
 
-<pre>
+<pre class="prettyprint">
 // если список пуст, то бросается исключение IndexOutOfBoundsException
 spiedList.get(0) returns "one"
 </pre>
 
 @doReturn@ должен быть исопльзован в этом случае:
 
-<pre>
+<pre class="prettyprint">
 doReturn("one").when(spiedList).get(0)
 </pre>
 
@@ -302,14 +302,14 @@ doReturn("one").when(spiedList).get(0)
 h2(#sbt). Запуск индивидальных спеков(тестов) в sbt
 
 
-<pre>
+<pre class="prettyprint">
 > test-only com.twitter.yourservice.UserSpec
 </pre>
 
 Запустится только данный спек.
 
 
-<pre>
+<pre class="prettyprint">
 > ~ test-only com.twitter.yourservice.UserSpec
 </pre>
 

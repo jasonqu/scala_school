@@ -20,7 +20,7 @@ h2(#composition). 函数组合
 
 让我们创建两个函数：
 
-<pre>
+<pre class="prettyprint">
 scala> def f(s: String) = "f(" + s + ")"
 f: (String)java.lang.String
 
@@ -32,7 +32,7 @@ h3. compose
 
 <code>compose</code> 组合其他函数形成一个新的函数 <code>f(g(x))</code>
 
-<pre>
+<pre class="prettyprint">
 scala> val fComposeG = f _ compose g _
 fComposeG: (String) => java.lang.String = <function>
 
@@ -44,7 +44,7 @@ h3. andThen
 
 <code>andThen</code> 和 <code>compose</code>很像，但是调用顺序是先调用第一个函数，然后调用第二个，即<code>g(f(x))</code>
 
-<pre>
+<pre class="prettyprint">
 scala> val fAndThenG = f _ andThen g _
 fAndThenG: (String) => java.lang.String = <function>
 
@@ -76,7 +76,7 @@ __注意__ 偏函数<code>PartialFunction</code> 和我们前面提到的部分�
 
 *参考* Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>的意见。
 
-<pre>
+<pre class="prettyprint">
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
 one: PartialFunction[Int,String] = <function1>
 
@@ -89,14 +89,14 @@ res1: Boolean = false
 
 您可以调用一个偏函数。
 
-<pre>
+<pre class="prettyprint">
 scala> one(1)
 res2: String = one
 </pre>
 
 PartialFunctions可以使用<code>orElse</code>组成新的函数，得到的PartialFunction反映了是否对给定参数进行了定义。
 
-<pre>
+<pre class="prettyprint">
 scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
 two: PartialFunction[Int,String] = <function1>
 
@@ -129,7 +129,7 @@ h3(#case). case 之谜
 
 上周我们看到一些新奇的东西。我们在通常应该使用函数的地方看到了一个case语句。
 
-<pre>
+<pre class="prettyprint">
 scala> case class PhoneExt(name: String, ext: Int)
 defined class PhoneExt
 

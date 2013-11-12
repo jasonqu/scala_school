@@ -35,7 +35,7 @@ Scala提供了一些不错的集合。
 
 h2(#Lists). 列表 List
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = List(1, 2, 3, 4)
 numbers: List[Int] = List(1, 2, 3, 4)
 </pre>
@@ -44,7 +44,7 @@ h2(#Sets). 集 Set
 
 集没有重复
 
-<pre>
+<pre class="prettyprint">
 scala> Set(1, 1, 2)
 res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
@@ -53,14 +53,14 @@ h2(#Tuple). 元组 Tuple
 
 元组是在不使用类的前提下，将元素组合起来形成简单的逻辑集合。
 
-<pre>
+<pre class="prettyprint">
 scala> val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
 </pre>
 
 与样本类不同，元组不能通过名称获取字段，而是使用位置下标来读取对象；而且这个下标基于1，而不是基于0。
 
-<pre>
+<pre class="prettyprint">
 scala> hostPort._1
 res0: String = localhost
 
@@ -70,7 +70,7 @@ res1: Int = 80
 
 元组可以很好得与模式匹配相结合。
 
-<pre>
+<pre class="prettyprint">
 hostPort match {
   case ("localhost", port) => ...
   case (host, port) => ...
@@ -79,7 +79,7 @@ hostPort match {
 
 在创建两个元素的元组时，可以使用特殊语法：<code>-></code>
 
-<pre>
+<pre class="prettyprint">
 scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
@@ -90,7 +90,7 @@ h2(#Maps). 映射 Map
 
 它可以持有基本数据类型。
 
-<pre>
+<pre class="prettyprint">
 Map(1 -> 2)
 Map("foo" -> "bar")
 </pre>
@@ -101,11 +101,11 @@ Map()方法也使用了从第一节课学到的变参列表：<code>Map(1 -> "on
 
 映射的值可以是映射甚或是函数。
 
-<pre>
+<pre class="prettyprint">
 Map(1 -> Map("foo" -> "bar"))
 </pre>
 
-<pre>
+<pre class="prettyprint">
 Map("timesTwo" -> { timesTwo(_) })
 </pre>
 
@@ -115,7 +115,7 @@ h2(#Option). 选项 Option
 
 Option基本的接口是这样的：
 
-<pre>
+<pre class="prettyprint">
 trait Option[T] {
   def isDefined: Boolean
   def get: T
@@ -129,7 +129,7 @@ Option本身是泛型的，并且有两个子类： <code>Some[T]</code> 或 <co
 
 <code>Map.get</code> 使用 <code>Option</code> 作为其返回值，表示这个方法也许不会返回你请求的值。
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = Map(1 -> "one", 2 -> "two")
 numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
 
@@ -144,7 +144,7 @@ res1: Option[java.lang.String] = None
 
 直觉上想到的可能是在<code>isDefined</code>方法上使用条件判断来处理。
 
-<pre>
+<pre class="prettyprint">
 // We want to multiply the number by two, otherwise return 0.
 val result = if (res1.isDefined) {
   res1.get * 2
@@ -163,7 +163,7 @@ val result = res1.getOrElse(0) * 2
 
 模式匹配能自然地配合<code>Option</code>使用。
 
-<pre>
+<pre class="prettyprint">
 val result = res1 match {
   case Some(n) => n * 2
   case None => 0
@@ -180,14 +180,14 @@ h2(#map). map
 
 <code>map</code>对列表中的每个元素应用一个函数，返回应用后的元素所组成的列表。
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
 或传入一个部分应用函数
 
-<pre>
+<pre class="prettyprint">
 scala> def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
 
@@ -199,7 +199,7 @@ h2(#foreach). foreach
 
 <code>foreach</code>很像map，但没有返回值。foreach仅用于有副作用[side-effects]的函数。
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foreach((i: Int) => i * 2)
 </pre>
 
@@ -207,7 +207,7 @@ scala> numbers.foreach((i: Int) => i * 2)
 
 你可以尝试存储返回值，但它会是Unit类型（即void）
 
-<pre>
+<pre class="prettyprint">
 scala> val doubled = numbers.foreach((i: Int) => i * 2)
 doubled: Unit = ()
 </pre>
@@ -216,12 +216,12 @@ h2(#filter). filter
 
 <code>filter</code>移除任何对传入函数计算结果为false的元素。返回一个布尔值的函数通常被称为谓词函数[或判定函数]。
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.filter((i: Int) => i % 2 == 0)
 res0: List[Int] = List(2, 4)
 </pre>
 
-<pre>
+<pre class="prettyprint">
 scala> def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
@@ -233,7 +233,7 @@ h2(#zip). zip
 
 <code>zip</code>将两个列表的内容聚合到一个对偶列表中。
 
-<pre>
+<pre class="prettyprint">
 scala> List(1, 2, 3).zip(List("a", "b", "c"))
 res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
 </pre>
@@ -242,7 +242,7 @@ h2(#partition). partition
 
 <code>partition</code>将使用给定的谓词函数分割列表。
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 scala> numbers.partition(_ %2 == 0)
 res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
@@ -252,7 +252,7 @@ h2(#find). find
 
 <code>find</code>返回集合中第一个匹配谓词函数的元素。
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.find((i: Int) => i > 5)
 res0: Option[Int] = Some(6)
 </pre>
@@ -261,21 +261,21 @@ h2(#drop). drop & dropWhile
 
 <code>drop</code> 将删除前i个元素
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
 <code>dropWhile</code> 将删除元素直到找到第一个匹配谓词函数的元素。例如，如果我们在numbers列表上使用<code>dropWhile</code>奇数的函数, <code>1</code>将被丢弃（但<code>3</code>不会被丢弃，因为他被<code>2</code>“保护”了）。
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.dropWhile(_ % 2 != 0)
 res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
 </pre>
 
 h2(#fold). foldLeft
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldLeft(0)((m: Int, n: Int) => m + n)
 res0: Int = 55
 </pre>
@@ -284,7 +284,7 @@ res0: Int = 55
 
 直接观察运行过程：
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 0 n: 1
 m: 1 n: 2
@@ -303,7 +303,7 @@ h3. foldRight
 
 和foldLeft一样，只是运行过程相反。
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 10 n: 0
 m: 9 n: 10
@@ -322,7 +322,7 @@ h2(#flatten). flatten
 
 <code>flatten</code>将嵌套结构扁平化为一个层次的集合。
 
-<pre>
+<pre class="prettyprint">
 scala> List(List(1, 2), List(3, 4)).flatten
 res0: List[Int] = List(1, 2, 3, 4)
 </pre>
@@ -331,7 +331,7 @@ h2(#flatMap). flatMap
 
 <code>flatMap</code>是一种常用的组合子，结合映射[mapping]和扁平化[flattening]。 flatMap需要一个处理嵌套列表的函数，然后将结果串连起来。
 
-<pre>
+<pre class="prettyprint">
 scala> val nestedNumbers = List(List(1, 2), List(3, 4))
 nestedNumbers: List[List[Int]] = List(List(1, 2), List(3, 4))
 
@@ -341,7 +341,7 @@ res0: List[Int] = List(2, 4, 6, 8)
 
 可以把它看做是“先映射后扁平化”的快捷操作：
 
-<pre>
+<pre class="prettyprint">
 scala> nestedNumbers.map((x: List[Int]) => x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
@@ -358,7 +358,7 @@ h2(#generalized). 扩展函数组合子
 
 有趣的是，上面所展示的每一个函数组合子都可以用fold方法实现。让我们看一些例子。
 
-<pre>
+<pre class="prettyprint">
 def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
   numbers.foldRight(List[Int]()) { (x: Int, xs: List[Int]) =>
     fn(x) :: xs
@@ -375,14 +375,14 @@ h2(#vsMap). Map?
 
 所有展示的函数组合子都可以在Map上使用。Map可以被看作是一个二元组的列表，所以你写的函数要处理一个键和值的二元组。
 
-<pre>
+<pre class="prettyprint">
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
 现在筛选出电话分机号码低于200的条目。
 
-<pre>
+<pre class="prettyprint">
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
@@ -391,7 +391,7 @@ res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 
 幸运的是，我们其实可以使用模式匹配更优雅地提取键和值。
 
-<pre>
+<pre class="prettyprint">
 scala> extensions.filter({case (name, extension) => extension < 200})
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>

@@ -16,7 +16,7 @@ h3. Exploring the default bootstrapper project
 
 First, create a skeleton project ("Searchbird") using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper. This creates a simple "Finagle":http://twitter.github.com/finagle/ -based Scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
 
-<pre>
+<pre class="prettyprint">
 $ mkdir searchbird ; cd searchbird
 $ scala-bootstrapper searchbird
 writing build.sbt
@@ -54,7 +54,7 @@ and here is the interface that our service exports. Since the Searchbird service
 
 h5. src/main/thrift/searchbird.thrift
 
-<pre>
+<pre class="prettyprint">
 service SearchbirdService {
   string get(1: string key) throws(1: SearchbirdException ex)
 
@@ -68,7 +68,7 @@ Now let's run the default service and a client that connects to this service, an
 
 In the first window, start sbt in interactive mode (run @./sbt@ from the command line[1]) and then build and run the project from within sbt. This runs the @main@ routine in @Main.scala@. 
 
-<pre>
+<pre class="prettyprint">
 $ ./sbt
 ...
 > compile
@@ -81,7 +81,7 @@ The configuration file (@development.scala@) instantiates a new service, exposin
 
 Now we're going to instantiate and run a client using the provided @console@ shell script, which instantiates a @SearchbirdConsoleClient@ instance (from @SearchbirdConsoleClient.scala@). Run this script in the other window:
 
-<pre>
+<pre class="prettyprint">
 $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
@@ -91,7 +91,7 @@ finagle-client>
 
 The client object @client@ is now connected to port 9999 on our local computer, and can talk to the service that we previously started on that port. So let's send it some requests:
 
-<pre>
+<pre class="prettyprint">
 scala> client.put("marius", "Marius Eriksen")
 res0: ...
 
@@ -109,7 +109,7 @@ res3: String = Marius Eriksen
 
 The server also exports runtime statistics (the configuration file specifies these can be found at port 9900). These are convenient both for inspecting individual servers as well as aggregating into global service statistics (a machine-readable JSON interface is also provided). Open a third window and check those stats:
 
-<pre>
+<pre class="prettyprint">
 $ curl localhost:9900/stats.txt
 counters:
   Searchbird/connects: 1
@@ -161,7 +161,7 @@ A configuration is a Scala trait that has a method @apply: RuntimeEnvironment =>
 
 The @SearchbirdServiceConfig@ class specifies such a class. It specifies configuration parameters together with their defaults. (Finagle supports a generic tracing system that we can ignore for the purposes of this tutorial; the "Zipkin":https://github.com/twitter/zipkin distributed tracing system is a collector/aggregator of such traces.) 
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
   var thriftPort: Int = 9999
   var tracerFactory: Tracer.Factory = NullTracer.factory
@@ -176,7 +176,7 @@ h5. .../Main.scala
 
 Typing "run" in the sbt console calls @main@, which configures and instantiates this server. It reads the configuration (specified in @development.scala@ and supplied as an argument to "run"), creates the @SearchbirdService.ThriftServer@, and starts it. @RuntimeEnvironment.loadRuntimeConfig@ performs the configuration evaluation and calls its @apply@ method with itself as an argument[3].
 
-<pre>
+<pre class="prettyprint">
 object Main {
   private val log = Logger.get(getClass)
 
@@ -200,7 +200,7 @@ h5. .../SearchbirdServiceImpl.scala
 
 This is the meat of the service: we extend the @SearchbirdService.ThriftServer@ with our custom implementation. Recall that @SearchbirdService.ThriftServer@ has been created for us by the thrift code generator. It generates a scala method per thrift method. In our example so far, the generated interface is:
 
-<pre>
+<pre class="prettyprint">
 trait SearchbirdService {
   def put(key: String, value: String): Future[Void]
   def get(key: String): Future[String]
@@ -211,7 +211,7 @@ trait SearchbirdService {
 
 The default implementation of the key-value store provided by @scala-bootstrapper@ is straightforward: it provides a @database@ data structure and @get@ and @put@ calls that access that data structure. 
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdService.ThriftServer {
   val serverName = "Searchbird"
   val thriftPort = config.thriftPort
@@ -256,7 +256,7 @@ To implement such a search engine, make the following changes to the following t
 
 h5. src/main/thrift/searchbird.thrift
 
-<pre>
+<pre class="prettyprint">
 service SearchbirdService {
   string get(1: string key) throws(1: SearchbirdException ex)
 
@@ -274,7 +274,7 @@ Most of our changes take place in this file.
 
 The current @database@ hashmap holds a forward index that maps a key to a document. We rename it to @forward@ and add a second map for the @reverse@ index (that maps a token to the set of documents that contain that token). So, within @SearchbirdServiceImpl.scala@, replace the @database@ definition with:
 
-<pre>
+<pre class="prettyprint">
 val forward = new mutable.HashMap[String, String]
   with mutable.SynchronizedMap[String, String]
 val reverse = new mutable.HashMap[String, Set[String]]
@@ -283,7 +283,7 @@ val reverse = new mutable.HashMap[String, Set[String]]
 
 Within the @get@ call, replace @database@ with @forward@, but otherwise, @get@ remains the same (it only performs forward lookups). However, @put@ requires changes: we also need to populate the reverse index for each token in the document by appending the document key to the list associated with that token. Replace the @put@ call with the following code. Given a particular search token, we can now use the @reverse@ map to look up documents.
 
-<pre>
+<pre class="prettyprint">
 def put(key: String, value: String) = {
   log.debug("put %s", key)
   
@@ -307,7 +307,7 @@ The implementation still has an issue that is left as an exercise for the reader
 
 Now to the meat of the search engine: the new @search@ method. It should tokenize its query, look up all of the matching documents and, then intersect these lists. This will yield the list of documents that contain all of the tokens in the query. This is straightforward to express in Scala; add this to the @SearchbirdServiceImpl@ class:
 
-<pre>
+<pre class="prettyprint">
 def search(query: String) = Future.value {
   val tokens = query.split(" ")
   val hits = tokens map { token => reverse.getOrElse(token, Set()) }
@@ -318,7 +318,7 @@ def search(query: String) = Future.value {
 
 A few things are worth calling out in this short piece of code. When constructing the hit list, if the key (@token@) is not found, @getOrElse@ will supply the value from its second parameter (in this case, an empty @Set@). We perform the actual intersection using a left-reduce. The particular flavor, @reduceLeftOption@, will not attempt to perform the reduce if @hits@ is empty, returning instead @None@. This allows us to supply a default value instead of experiencing an exception. In fact, this is equivalent to:
 
-<pre>
+<pre class="prettyprint">
 def search(query: String) = Future.value {
   val tokens = query.split(" ")
   val hits = tokens map { token => reverse.getOrElse(token, Set()) }
@@ -333,7 +333,7 @@ Which to use is mostly a matter of taste, though functional style often eschews 
 
 We can now experiment with our new implementation using the console. Start your server again:
 
-<pre>
+<pre class="prettyprint">
 $ ./sbt
 ...
 > compile
@@ -344,7 +344,7 @@ $ ./sbt
 
 and then from the searchbird directory, start up a client:
 
-<pre>
+<pre class="prettyprint">
 $ ./console 127.0.0.1 9999
 ...
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
@@ -365,7 +365,7 @@ grep -h '^(desc|title):' ../web/_posts/* | tr A-Z a-z | tr '=''\-+.,:' ' ' | awk
 }'
 -->
 
-<pre>
+<pre class="prettyprint">
 client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
 client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
 client.put("collections", " lists maps functional combinators (map foreach filter zip")
@@ -382,7 +382,7 @@ client.put("searchbird", " building a distributed search engine using")
 
 We can now perform some searches, which return the keys of the documents that contain the search terms. 
 
-<pre>
+<pre class="prettyprint">
 > client.search("functions").get()
 res12: Seq[String] = ArrayBuffer(basics)
 
@@ -404,7 +404,7 @@ res17: Seq[String] = ArrayBuffer(type, advanced)
 
 Recall that if the call returns a @Future@, we have to use a blocking @get()@ call to resolve the value contained within that future. We can use the @Future.collect@ command to make multiple concurrent requests and wait for all of them to succeed:
 
-<pre>
+<pre class="prettyprint">
 > import com.twitter.util.Future
 ...
 > Future.collect(Seq(
@@ -427,7 +427,7 @@ To aid our work, we'll first introduce another abstraction--an @Index@--in order
 
 h5. .../Index.scala
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.searchbird
 
 import scala.collection.mutable
@@ -493,7 +493,7 @@ Replace your @SearchbirdServiceImpl@ class definition with the (much simpler) on
 
 h5. .../SearchbirdServiceImpl.scala
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceImpl(config: SearchbirdServiceConfig, index: Index) extends SearchbirdService.ThriftServer {
   val serverName = "Searchbird"
   val thriftPort = config.thriftPort
@@ -513,7 +513,7 @@ h5. .../config/SearchbirdServiceConfig.scala
 
 Update your @apply@ call in @SearchbirdServiceConfig@ accordingly:
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
   var thriftPort: Int = 9999
   var tracerFactory: Tracer.Factory = NullTracer.factory
@@ -528,7 +528,7 @@ h5. .../Index.scala
 
 In @Index.scala@, define a @CompositeIndex@:
 
-<pre>
+<pre class="prettyprint">
 class CompositeIndex(indices: Seq[Index]) extends Index {
   require(!indices.isEmpty)
 
@@ -563,7 +563,7 @@ The composite index works over a set of underlying @Index@ instances. Note that 
 
 @RemoteIndex@ provides an @Index@ interface to a remote server. 
 
-<pre>
+<pre class="prettyprint">
 class RemoteIndex(hosts: String) extends Index {
   val transport = ClientBuilder()
     .name("remoteIndex")
@@ -588,7 +588,7 @@ We now have all the pieces we need. We'll need to adjust the configuration in or
 
 h5. .../config/SearchbirdServiceConfig.scala
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
   var thriftPort: Int = 9999
   var shards: Seq[String] = Seq()
@@ -621,7 +621,7 @@ Now we'll adjust the configuration itself: add the "shards" initialization to th
 
 h5. config/development.scala
 
-<pre>
+<pre class="prettyprint">
 new SearchbirdServiceConfig {
   // Add your own config here
   shards = Seq(
@@ -634,7 +634,7 @@ new SearchbirdServiceConfig {
 
 Comment out the setting for @admin.httpPort@ (we don't want several services running on the same machine, all of which are trying to open up the same port):
 
-<pre>
+<pre class="prettyprint">
   // admin.httpPort = 9900
 </pre>
 
@@ -642,7 +642,7 @@ Now if we invoke our server without any arguments, it starts a distinguished nod
 
 Let's try it! We'll launch 3 services: 2 shards and 1 distinguished node. First compile the changes:
 
-<pre>
+<pre class="prettyprint">
 $ ./sbt
 > compile
 ...
@@ -651,7 +651,7 @@ $ ./sbt
 
 Then launch 3 servers:
 
-<pre>
+<pre class="prettyprint">
 $ ./sbt 'run -f config/development.scala -D shard=0'
 $ ./sbt 'run -f config/development.scala -D shard=1'
 $ ./sbt 'run -f config/development.scala'
@@ -661,13 +661,13 @@ You can either run these in 3 different windows or (in the same window) start ea
 
 Then we'll interact with them through the console. First, let's populate some data in the two shard nodes. Running from the searchbird directory:
 
-<pre>
+<pre class="prettyprint">
 $ ./console localhost 9000
 ...
 > client.put("fromShardA", "a value from SHARD_A")
 > client.put("hello", "world")
 </pre>
-<pre>
+<pre class="prettyprint">
 $ ./console localhost 9001
 ...
 > client.put("fromShardB", "a value from SHARD_B")
@@ -676,7 +676,7 @@ $ ./console localhost 9001
 
 You can exit these console sessions once you complete them.  Now query our database from the distinguished node (port 9999): 
 
-<pre>
+<pre class="prettyprint">
 $ ./console localhost 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient localhost 9999
 'client' is bound to your thrift client.

@@ -20,7 +20,7 @@ h2(#composition). Объединение функций
 
 Давайте создадим две полезные функции:
 
-<pre>
+<pre class="prettyprint">
 scala> def addUmm(x: String) = x + " umm"
 addUmm: (x: String)String
 
@@ -32,7 +32,7 @@ h3. compose
 
 <code>compose</code> создает новую функцию, которая является объединением других функций <code>f(g(x))</code>
 
-<pre>
+<pre class="prettyprint">
 scala> val ummThenAhem = addAhem _ compose addUmm _
 ummThenAhem: (String) => String = <function1>
 
@@ -44,7 +44,7 @@ h3. andThen
 
 <code>andThen</code> похожа на  <code>compose</code>, но сначала вызывается первая функция, затем вторая <code>g(f(x))</code>
 
-<pre>
+<pre class="prettyprint">
 scala> val ahemThenUmm = addAhem _ andThen addUmm _
 ahemThenUmm: (String) => String = <function1>
 
@@ -76,7 +76,7 @@ __Заметьте__ <code>PartialFunction</code> не связана с час�
 
 *Смотрите также:* В Effective Scala описывается <a href="http://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Частичные функции">PartialFunction</a>.
 
-<pre>
+<pre class="prettyprint">
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
 one: PartialFunction[Int,String] = <function1>
 
@@ -89,14 +89,14 @@ res1: Boolean = false
 
 Вы можете использовать частичную функцию.
 
-<pre>
+<pre class="prettyprint">
 scala> one(1)
 res2: String = one
 </pre>
 
 PartialFunctions может быть объединена с чем-то новым, называемым OrElse, который показывает, определен ли PartialFunction с передаваемым аргументом.
 
-<pre>
+<pre class="prettyprint">
 scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
 two: PartialFunction[Int,String] = <function1>
 
@@ -129,7 +129,7 @@ h3(#case). Тайна о case.
 
 На прошлой неделе мы увидели нечто любопытное. Мы видели case утверждение там, где обычно использовалась функция.
 
-<pre>
+<pre class="prettyprint">
 scala> case class PhoneExt(name: String, ext: Int)
 defined class PhoneExt
 

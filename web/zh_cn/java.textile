@@ -19,7 +19,7 @@ h2. Javap
 
 javap的是JDK附带的一个工具。不是JRE，这里是有区别的。 javap反编译类定义，给你展示里面有什么。用法很简单
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
 public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
@@ -30,7 +30,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 
 如果你是底层控可以看看字节码
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
 Compiled from "Scalaisms.scala"
 public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
@@ -61,7 +61,7 @@ h2. 类
 
 我们将构建一个简单的Scala类来展示这一系列实体
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop
 
 import java.io.IOException
@@ -94,7 +94,7 @@ h3. 类参数
 * 默认情况下，类参数都是有效的Java构造函数的参数。这意味着你不能从类的外部访问。
 * 声明一个类参数为val/var 和这段代码是相同的
 
-<pre>
+<pre class="prettyprint">
 class SimpleClass(acc_: String) {
   val acc = acc_
 }
@@ -110,7 +110,7 @@ h3. 类变量
 
 * 变量（var）会生成一个 <name>_$eq 方法。你可以这样调用它
 
-<pre>
+<pre class="prettyprint">
 foo$_eq("newfoo");
 </pre>
 
@@ -118,7 +118,7 @@ h3. BeanProperty
 
 你可以通过@BeanProperty注解val和var定义。这会按照POJO定义生成getter/setter方法。如果你想生成isFoo方法，使用BooleanBeanProperty注解。丑陋的foo$_eq将变为
 
-<pre>
+<pre class="prettyprint">
 setFoo("newfoo");
 getFoo();
 </pre>
@@ -128,7 +128,7 @@ h3. 异常
 
 Scala没有像java那样有受检异常（checked exception）。需不需要受检异常是一个我们不会进入的哲学辩论，不过当你需要在Java中捕获它时就 *很重要* 了。dangerFoo和dangerBar将演示这一点。在Java中不能这样做
 
-<pre>
+<pre class="prettyprint">
         // exception erasure!
         try {
             s.dangerFoo();
@@ -149,7 +149,7 @@ h2. 特质
 
 你如何获得一个接口+实现？让我们看一个简单的特质定义
 
-<pre>
+<pre class="prettyprint">
 trait MyTrait {
   def traitName:String
   def upperTraitName = traitName.toUpperCase
@@ -160,7 +160,7 @@ trait MyTrait {
 
 MyTrait和你期望的一样
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
 public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
@@ -171,7 +171,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 
 MyTrait$class更有趣
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
 Compiled from "Scalaisms.scala"
 public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
@@ -184,7 +184,7 @@ MyTrait$class只有以MyTrait实例为参数的静态方法。这给了我们一
 
 首先尝试下面的操作
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop;
 
 public class JTraitImpl implements MyTrait {
@@ -202,7 +202,7 @@ public class JTraitImpl implements MyTrait {
 
 我们会得到以下错误
 
-<pre>
+<pre class="prettyprint">
 [info] Compiling main sources...
 [error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
 [error] public class JTraitImpl implements MyTrait {
@@ -211,7 +211,7 @@ public class JTraitImpl implements MyTrait {
 
 我们 _可以_ 自己实现。但有一个鬼鬼祟祟的方式。
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop;
 
     public String upperTraitName() {
@@ -227,7 +227,7 @@ h2.  单例对象
 
 一个Scala单例对象会被编译成由“$”结尾的类。让我们创建一个类和一个伴生对象
 
-<pre>
+<pre class="prettyprint">
 class TraitImpl(name: String) extends MyTrait {
   def traitName = name
 }
@@ -240,13 +240,13 @@ object TraitImpl {
 
 我们可以像这样天真地在Java中访问
 
-<pre>
+<pre class="prettyprint">
 MyTrait foo = TraitImpl$.MODULE$.apply("foo");
 </pre>
 
 现在你可能会问自己，这是神马玩意？这是一个正常的反应。让我们来看看TraitImpl$里面实际上是什么
 
-<pre>
+<pre class="prettyprint">
 local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
 Compiled from "Scalaisms.scala"
 public final class com.twitter.interop.TraitImpl$ extends java.lang.Object implements scala.ScalaObject{
@@ -263,7 +263,7 @@ h3.  转发方法（Forwarding Methods）
 
 在Scala2.8中处理单例对象变得相对容易一点。如果你有一个类与一个伴生对象，2.8编译器会生成转发方法在伴生类中。所以，如果你用2.8，你可以像这样调用TraitImpl单例对象的方法
 
-<pre>
+<pre class="prettyprint">
 MyTrait foo = TraitImpl.apply("foo");
 </pre>
 
@@ -271,7 +271,7 @@ h2. 闭包函数
 
 Scala的最重要的特点之一，就是把函数作为头等公民。让我们来定义一个类，它定义了一些以函数作为参数的方法。
 
-<pre>
+<pre class="prettyprint">
 class ClosureClass {
   def printResult[T](f: => T) = {
     println(f)
@@ -285,14 +285,14 @@ class ClosureClass {
 
 在Scala中可以像这样调用
 
-<pre>
+<pre class="prettyprint">
 val cc = new ClosureClass
 cc.printResult { "HI MOM" }
 </pre>
 
 在Java中却不那么容易，不过也并不可怕。让我们来看看ClosureClass实际上被编译成什么：
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
 Compiled from "Scalaisms.scala"
 public class com.twitter.interop.ClosureClass extends java.lang.Object implements scala.ScalaObject{
@@ -306,7 +306,7 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
 
 现在我们只需要弄清楚如何在Java中使用这些东东。我们可以传入Scala提供的AbstractFunction0和AbstractFunction1，像这样
 
-<pre>
+<pre class="prettyprint">
     @Test public void closureTest() {
         ClosureClass c = new ClosureClass();
         c.printResult(new AbstractFunction0() {

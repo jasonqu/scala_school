@@ -17,7 +17,7 @@ h2(#runnable). Runnable/Callable
 
 Runnable has a single method that returns no value.
 
-<pre>
+<pre class="prettyprint">
 trait Runnable {
   def run(): Unit
 }
@@ -25,7 +25,7 @@ trait Runnable {
 
 Callable is similar to run except that it returns a value
 
-<pre>
+<pre class="prettyprint">
 trait Callable[V] {
   def call(): V
 }
@@ -40,7 +40,7 @@ On Sun JVMs, with a IO-heavy workload, we can run tens of thousands of threads o
 
 A Thread takes a Runnable.  You have to call @start@ on a Thread in order for it to run the Runnable.
 
-<pre>
+<pre class="prettyprint">
 scala> val hello = new Thread(new Runnable {
   def run() {
     println("hello world")
@@ -59,7 +59,7 @@ h3. Something single-threaded
 
 Here's a code snippet that works but has problems.
 
-<pre>
+<pre class="prettyprint">
 import java.net.{Socket, ServerSocket}
 import java.util.concurrent.{Executors, ExecutorService}
 import java.util.Date
@@ -94,13 +94,13 @@ The main drawback with this code is that only one request at a time can be answe
 
 You could put each request in a Thread.  Simply change
 
-<pre>
+<pre class="prettyprint">
 (new Handler(socket)).run()
 </pre>
 
 to
 
-<pre>
+<pre class="prettyprint">
 (new Thread(new Handler(socket))).start()
 </pre>
 
@@ -115,7 +115,7 @@ You can get an @ExecutorService@ using static methods on the @Executors@ object.
 
 Here's our old blocking network server written to allow concurrent requests.
 
-<pre>
+<pre class="prettyprint">
 import java.net.{Socket, ServerSocket}
 import java.util.concurrent.{Executors, ExecutorService}
 import java.util.Date
@@ -151,7 +151,7 @@ class Handler(socket: Socket) extends Runnable {
 
 Here's a transcript connecting to it showing how the internal threads are re-used.
 
-<pre>
+<pre class="prettyprint">
 $ nc localhost 2020
 pool-1-thread-1
 
@@ -172,7 +172,7 @@ A @Future@ represents an asynchronous computation.  You can wrap your computatio
 
 A @FutureTask@ is a Runnable and is designed to be run by an @Executor@
 
-<pre>
+<pre class="prettyprint">
 val future = new FutureTask[String](new Callable[String]() {
   def call(): String = {
     searcher.search(target);
@@ -182,7 +182,7 @@ executor.execute(future)
 
 Now I need the results so let's block until its done.
 
-<pre>
+<pre class="prettyprint">
 val blockingResult = future.get()
 </pre>
 
@@ -190,7 +190,7 @@ val blockingResult = future.get()
 
 h2(#danger). Thread Safety Problem
 
-<pre>
+<pre class="prettyprint">
 class Person(var name: String) {
   def set(changedName: String) {
     name = changedName
@@ -212,7 +212,7 @@ Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The m
 
 In the JVM, you can synchronize on any instance that's not null.
 
-<pre>
+<pre class="prettyprint">
 class Person(var name: String) {
   def set(changedName: String) {
     this.synchronized {
@@ -228,7 +228,7 @@ With Java 5's change to the memory model, volatile and synchronized are basicall
 
 @synchronized@ allows for more fine-grained locking.  @volatile@ synchronizes on every access.
 
-<pre>
+<pre class="prettyprint">
 class Person(@volatile var name: String) {
   def set(changedName: String) {
     name = changedName
@@ -240,7 +240,7 @@ h4. AtomicReference
 
 Also in Java 5, a whole raft of low-level concurrency primitives were added. One of them is an @AtomicReference@ class
 
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.atomic.AtomicReference
 
 class Person(val name: AtomicReference[String]) {
@@ -269,7 +269,7 @@ h4. CountDownLatch
 
 A @CountDownLatch@ is a simple mechanism for multiple threads to communicate with each other.
 
-<pre>
+<pre class="prettyprint">
 val doneSignal = new CountDownLatch(2)
 doAsyncWork(1)
 doAsyncWork(2)
@@ -300,7 +300,7 @@ This is written in a naive way assuming only single-threaded access.
 
 Note the alternative default constructor @this()@ that uses a @mutable.HashMap@
 
-<pre>
+<pre class="prettyprint">
 import scala.collection.mutable
 
 case class User(name: String, id: Int)
@@ -335,7 +335,7 @@ Since userMap isn't thread-safe, how we do we keep only a single thread at a tim
 
 You might consider locking on userMap while adding.
 
-<pre>
+<pre class="prettyprint">
 def add(user: User) {
   userMap.synchronized {
     tokenizeName(user.name).foreach { term =>
@@ -347,7 +347,7 @@ def add(user: User) {
 
 Unfortunately, this is too coarse.  Always try to do as much expensive work outside of the mutex as possible.  Remember what I said about locking being cheap if there is no contention.  If you do less work inside of a block, there will be less contention.
 
-<pre>
+<pre class="prettyprint">
 def add(user: User) {
   // tokenizeName was measured to be the most expensive operation.
   val tokens = tokenizeName(user.name)
@@ -367,7 +367,7 @@ We can mixin synchronization with a mutable HashMap using the SynchronizedMap tr
 We can extend our existing InvertedIndex to give users an easy way to build the synchronized index.
 
 
-<pre>
+<pre class="prettyprint">
 import scala.collection.mutable.SynchronizedMap
 
 class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends InvertedIndex(userMap) {
@@ -383,7 +383,7 @@ Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use Ja
 
 In fact, we can seamlessly layer our new, thread-safe InvertedIndex as an extension of the old unsafe one.
 
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConverters._
 
@@ -398,7 +398,7 @@ h2. Let's load our InvertedIndex
 
 h3. The naive way
 
-<pre>
+<pre class="prettyprint">
 
 trait UserMaker {
   def makeUser(line: String) = line.split(",") match {
@@ -423,7 +423,7 @@ h3.  A solution: Producer/Consumer
 
 A common pattern for async computation is to separate producers from consumers and have them only communicate via a @Queue@.  Let's walk through how that would work for our search engine indexer.
 
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 
 // Concrete producer

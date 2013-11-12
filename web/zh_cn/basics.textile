@@ -51,7 +51,7 @@ h3. 启动解释器
 
 使用自带的<code>sbt console</code>启动。
 
-<pre>
+<pre class="prettyprint">
 $ sbt console
 
 [...]
@@ -66,7 +66,7 @@ scala>
 
 h2(#expressions). 表达式
 
-<pre>
+<pre class="prettyprint">
 scala> 1 + 1
 res0: Int = 2
 </pre>
@@ -79,7 +79,7 @@ h2(#val). 值
 
 你可以给一个表达式的结果起个名字赋成一个不变量（val）。
 
-<pre>
+<pre class="prettyprint">
 scala> val two = 1 + 1
 two: Int = 2
 </pre>
@@ -90,7 +90,7 @@ h3. 变量
 
 如果你需要修改这个名称和结果的绑定，可以选择使用<code>var</code>。
 
-<pre>
+<pre class="prettyprint">
 scala> var name = "steve"
 name: java.lang.String = steve
 
@@ -102,21 +102,21 @@ h2(#functions). 函数
 
 你可以使用def创建函数.
 
-<pre>
+<pre class="prettyprint">
 scala> def addOne(m: Int): Int = m + 1
 addOne: (m: Int)Int
 </pre>
 
 在Scala中，你需要为函数参数指定类型签名。
 
-<pre>
+<pre class="prettyprint">
 scala> val three = addOne(2)
 three: Int = 3
 </pre>
 
 如果函数不带参数，你可以不写括号。
 
-<pre>
+<pre class="prettyprint">
 scala> def three() = 1 + 2
 three: ()Int
 
@@ -131,21 +131,21 @@ h3. 匿名函数
 
 你可以创建匿名函数。
 
-<pre>
+<pre class="prettyprint">
 scala> (x: Int) => x + 1
 res2: (Int) => Int = <function1>
 </pre>
 
 这个函数为名为x的Int变量加1。
 
-<pre>
+<pre class="prettyprint">
 scala> res2(1)
 res3: Int = 2
 </pre>
 
 你可以传递匿名函数，或将其保存成不变量。
 
-<pre>
+<pre class="prettyprint">
 scala> val addOne = (x: Int) => x + 1
 addOne: (Int) => Int = <function1>
 
@@ -155,7 +155,7 @@ res4: Int = 2
 
 如果你的函数有很多表达式，可以使用{}来格式化代码，使之易读。
 
-<pre>
+<pre class="prettyprint">
 def timesTwo(i: Int): Int = {
   println("hello world")
   i * 2
@@ -164,7 +164,7 @@ def timesTwo(i: Int): Int = {
 
 对匿名函数也是这样的。
 
-<pre>
+<pre class="prettyprint">
 scala> { i: Int =>
   println("hello world")
   i * 2
@@ -178,12 +178,12 @@ h3. 部分应用（Partial application）
 
 你可以使用下划线“_”部分应用一个函数，结果将得到另一个函数。Scala使用下划线表示不同上下文中的不同事物，你通常可以把它看作是一个没有命名的神奇通配符。在<code>{ _ + 2 }</code>的上下文中，它代表一个匿名参数。你可以这样使用它：
 
-<pre>
+<pre class="prettyprint">
 scala> def adder(m: Int, n: Int) = m + n
 adder: (m: Int,n: Int)Int
 </pre>
 
-<pre>
+<pre class="prettyprint">
 scala> val add2 = adder(2, _:Int)
 add2: (Int) => Int = <function1>
 
@@ -199,21 +199,21 @@ h3. 柯里化函数
 
 例如一个乘法函数，在一个场景需要选择乘数，而另一个场景需要选择被乘数。
 
-<pre>
+<pre class="prettyprint">
 scala> def multiply(m: Int)(n: Int): Int = m * n
 multiply: (m: Int)(n: Int)Int
 </pre>
 
 你可以直接传入两个参数。
 
-<pre>
+<pre class="prettyprint">
 scala> multiply(2)(3)
 res0: Int = 6
 </pre>
 
 你可以填上第一个参数并且部分应用第二个参数。
 
-<pre>
+<pre class="prettyprint">
 scala> val timesTwo = multiply(2) _
 timesTwo: (Int) => Int = <function1>
 
@@ -223,7 +223,7 @@ res1: Int = 6
 
 你可以对任何多参数函数执行柯里化。例如之前的<code>adder</code>函数
 
-<pre>
+<pre class="prettyprint">
 scala> (adder _).curried
 res1: (Int) => (Int) => Int = <function1>
 </pre>
@@ -232,7 +232,7 @@ h3. 可变长度参数
 
 这是一个特殊的语法，可以向方法传入任意多个同类型的参数。例如要在多个字符串上执行String的<code>capitalize</code>函数，可以这样写：
 
-<pre>
+<pre class="prettyprint">
 def capitalizeAll(args: String*) = {
   args.map { arg =>
     arg.capitalize
@@ -245,7 +245,7 @@ res2: Seq[String] = ArrayBuffer(Rarity, Applejack)
 
 h2(#class). 类
 
-<pre>
+<pre class="prettyprint">
 scala> class Calculator {
      |   val brand: String = "HP"
      |   def add(m: Int, n: Int): Int = m + n
@@ -268,7 +268,7 @@ h3. 构造函数
 
 构造函数不是特殊的方法，他们是除了类的方法定义之外的代码。让我们扩展计算器的例子，增加一个构造函数参数，并用它来初始化内部状态。
 
-<pre>
+<pre class="prettyprint">
 class Calculator(brand: String) {
   /**
    * A constructor.
@@ -290,7 +290,7 @@ class Calculator(brand: String) {
 
 你可以使用构造函数来构造一个实例：
 
-<pre>
+<pre class="prettyprint">
 scala> val calc = new Calculator("HP")
 calc: Calculator = Calculator@1e64cc4d
 
@@ -306,7 +306,7 @@ h3. 旁白: 函数 vs 方法
 
 函数和方法在很大程度上是可以互换的。由于函数和方法是如此的相似，你可能都不知道你调用的<em>东西</em>是一个函数还是一个方法。而当真正碰到的方法和函数之间的差异的时候，你可能会感到困惑。
 
-<pre>
+<pre class="prettyprint">
 scala> class C {
      |   var acc = 0
      |   def minc = { acc += 1 }
@@ -329,7 +329,7 @@ res2: () => Unit = <function0>
 
 h2(#extends). 继承
 
-<pre>
+<pre class="prettyprint">
 class ScientificCalculator(brand: String) extends Calculator(brand) {
   def log(m: Double, base: Double) = math.log(m) / math.log(base)
 }
@@ -339,7 +339,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 
 h3. 重载方法
 
-<pre>
+<pre class="prettyprint">
 class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
   def log(m: Int): Double = log(m, math.exp(1))
 }
@@ -349,7 +349,7 @@ h3. 抽象类
 
 你可以定义一个<em>抽象类</em>，它定义了一些方法但没有实现它们。取而代之是由扩展抽象类的子类定义这些方法。你不能创建抽象类的实例。
 
-<pre>
+<pre class="prettyprint">
 scala> abstract class Shape {
      |   def getArea():Int    // subclass should define this
      | }
@@ -373,7 +373,7 @@ h2(#trait). 特质（Traits）
 
 <code>特质</code>是一些字段和行为的集合，可以扩展或混入（mixin）你的类中。
 
-<pre>
+<pre class="prettyprint">
 trait Car {
   val brand: String
 }
@@ -383,7 +383,7 @@ trait Shiny {
 }
 </pre>
 
-<pre>
+<pre class="prettyprint">
 class BMW extends Car {
   val brand = "BMW"
 }
@@ -391,7 +391,7 @@ class BMW extends Car {
 
 通过<code>with</code>关键字，一个类可以扩展多个特质：
 
-<pre>
+<pre class="prettyprint">
 class BMW extends Car with Shiny {
   val brand = "BMW"
   val shineRefraction = 12
@@ -413,7 +413,7 @@ h2(#types). 类型
 
 此前，我们定义了一个函数的参数为<code>Int</code>，表示输入是一个数字类型。其实函数也可以是泛型的，来适用于所有类型。当这种情况发生时，你会看到用方括号语法引入的类型参数。下面的例子展示了一个使用泛型键和值的缓存。
 
-<pre>
+<pre class="prettyprint">
 trait Cache[K, V] {
   def get(key: K): V
   def put(key: K, value: V)
@@ -423,6 +423,6 @@ trait Cache[K, V] {
 
 方法也可以引入类型参数。
 
-<pre>
+<pre class="prettyprint">
 def remove[K](key: K)
 </pre>

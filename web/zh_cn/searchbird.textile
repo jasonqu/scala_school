@@ -16,7 +16,7 @@ h3. 探索默认的引导程序项目
 
 首先，使用 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 创建一个骨架项目（ “ Searchbird ” ）。这将创建一个简单的基于 "Finagle":http://twitter.github.com/finagle/ 和key-value内存存储的Scala服务。我们将扩展这个工程以支持搜索值，并进而支持多进程多个内存存储的搜索。
 
-<pre>
+<pre class="prettyprint">
 $ mkdir searchbird ; cd searchbird
 $ scala-bootstrapper searchbird
 writing build.sbt
@@ -54,7 +54,7 @@ writing TUTORIAL.md
 
 h5. src/main/thrift/searchbird.thrift
 
-<pre>
+<pre class="prettyprint">
 service SearchbirdService {
   string get(1: string key) throws(1: SearchbirdException ex)
 
@@ -68,7 +68,7 @@ service SearchbirdService {
 
 在第一个窗口中，用交互模式启动SBT（在命令行中运行 @./sbt@[1]），然后构建和运行项目内SBT。这会运行 @Main.scala@ 定义的 @主@ 进程。
 
-<pre>
+<pre class="prettyprint">
 $ ./sbt
 ...
 > compile
@@ -81,7 +81,7 @@ $ ./sbt
 
 现在，我们将使用 @控制台@ shell脚本初始化和运行一个客户端实例，即 @SearchbirdConsoleClient@ 实例 (@SearchbirdConsoleClient.scala@) 。在另一个窗口中运行此脚本：
 
-<pre>
+<pre class="prettyprint">
 $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
@@ -91,7 +91,7 @@ finagle-client>
 
 客户端对象 @client@ 现在连接到本地计算机上的9999端口，并可以跟服务交互了。接下来我们发送一些请求：
 
-<pre>
+<pre class="prettyprint">
 scala> client.put("marius", "Marius Eriksen")
 res0: ...
 
@@ -109,7 +109,7 @@ res3: String = Marius Eriksen
 
 该服务器还输出运行统计（配置文件中指定这些信息在9900端口）。这不仅方便对各个服务器进行检查，也利于聚集全局的服务统计（以机器可读的JSON接口）。打开第三个窗口来查看这些统计：
 
-<pre>
+<pre class="prettyprint">
 $ curl localhost:9900/stats.txt
 counters:
   Searchbird/connects: 1
@@ -161,7 +161,7 @@ h5. .../config/SearchbirdServiceConfig.scala
 
 @SearchbirdServiceConfig@ 类就是这样一个配置类。它使用其默认值一起指定配置参数。 （Finagle 支持一个通用的跟踪系统，我们在本教程将不会介绍： "Zipkin":https://github.com/twitter/zipkin 一个集合/聚合轨迹的 分布式跟踪系统。）
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
   var thriftPort: Int = 9999
   var tracerFactory: Tracer.Factory = NullTracer.factory
@@ -176,7 +176,7 @@ h5. .../Main.scala
 
 在SBT控制台中键入“run”调用 @main@ ，这将配置和初始化服务器。它读取配置（在 @development.scala@ 中指定，并会作为参数传给“run”），创建 @SearchbirdService.ThriftServer@ ，并启动它。 @RuntimeEnvironment.loadRuntimeConfig@ 执行配置赋值，并把自身作为一个参数来调用 @apply@ [3]。
 
-<pre>
+<pre class="prettyprint">
 object Main {
   private val log = Logger.get(getClass)
 
@@ -200,7 +200,7 @@ h5. .../SearchbirdServiceImpl.scala
 
 这是实质的服务：我们用自己的实现扩展 @SearchbirdService.ThriftServer@ 。回忆一下thrift为我们生成的 @SearchbirdService.ThriftServer@ 。它为每一个thrift方法生成一个Scala方法。到目前为止，在我们的例子中生成的接口是：
 
-<pre>
+<pre class="prettyprint">
 trait SearchbirdService {
   def put(key: String, value: String): Future[Void]
   def get(key: String): Future[String]
@@ -211,7 +211,7 @@ trait SearchbirdService {
 
 @scala-bootstrapper@ 默认实现的key-value存储很简单：它提供了一个通过 @get@ 和 @put@ 访问的 @数据库@ 数据结构。
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdService.ThriftServer {
   val serverName = "Searchbird"
   val thriftPort = config.thriftPort
@@ -256,7 +256,7 @@ h2. 一个简单的搜索引擎
 
 h5. src/main/thrift/searchbird.thrift
 
-<pre>
+<pre class="prettyprint">
 service SearchbirdService {
   string get(1: string key) throws(1: SearchbirdException ex)
 
@@ -274,7 +274,7 @@ h5. .../SearchbirdServiceImpl.scala
 
 现在的 @数据库@ HashMap保存一个正向索引来持有到文档的键映射。我们重命名它为 @forward@ 并增加一个 @倒排（reverse）@ 索引（映射记号到所有包含该记号的文件）。所以在  @SearchbirdServiceImpl.scala@ 中，更换 @database@ 定义：
 
-<pre>
+<pre class="prettyprint">
 val forward = new mutable.HashMap[String, String]
   with mutable.SynchronizedMap[String, String]
 val reverse = new mutable.HashMap[String, Set[String]]
@@ -283,7 +283,7 @@ val reverse = new mutable.HashMap[String, Set[String]]
 
 在 @get@ 调用中，使用 @forward@ 替换 @数据库@ 即可，在其他方面 @get@ 保持不变（仅执行正向查找）。不过 @put@ 还需要改变：我们还需要为文件中的每个令牌填充反向索引，把文件的键附加到令牌关联的列表中。用下面的代码替换 @put@ 调用。给定一个特定的搜索令牌，我们现在可以使用 @反向@ 映射来查找文件。
 
-<pre>
+<pre class="prettyprint">
 def put(key: String, value: String) = {
   log.debug("put %s", key)
   
@@ -307,7 +307,7 @@ def put(key: String, value: String) = {
 
 现在进入搜索引擎的核心：新的 @search@ 方法。他应该解析查询，寻找匹配的文档，然后对这些列表做相交操作。这将产生包含所有查询中的标记的文件列表。在Scala中可以很直接地表达；添加这段代码到 @SearchbirdServiceImpl@ 类中：
 
-<pre>
+<pre class="prettyprint">
 def search(query: String) = Future.value {
   val tokens = query.split(" ")
   val hits = tokens map { token => reverse.getOrElse(token, Set()) }
@@ -318,7 +318,7 @@ def search(query: String) = Future.value {
 
 在这段短短的代码中有几件事情是值得关注的。在构建命中列表时，如果键（ @token@ ）没有被发现， @getOrElse@  会返回其第二个参数（在这种情况下，一个空 @Set@ ）。我们使用left-reduce执行实际的相交操作。特别是当 @reduceLeftOption@ 发现 @hits@ 为空时将不会继续尝试执行reduce操作。这使我们能够提供一个默认值，而不是抛出一个异常。其实这相当于：
 
-<pre>
+<pre class="prettyprint">
 def search(query: String) = Future.value {
   val tokens = query.split(" ")
   val hits = tokens map { token => reverse.getOrElse(token, Set()) }
@@ -333,7 +333,7 @@ def search(query: String) = Future.value {
 
 现在，我们可以尝试在控制台中实验我们新的实现。重启服务器：
 
-<pre>
+<pre class="prettyprint">
 $ ./sbt
 ...
 > compile
@@ -344,7 +344,7 @@ $ ./sbt
 
 然后再从searchbird目录，启动客户端：
 
-<pre>
+<pre class="prettyprint">
 $ ./console 127.0.0.1 9999
 ...
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
@@ -365,7 +365,7 @@ grep -h '^(desc|title):' ../web/_posts/* | tr A-Z a-z | tr '=''\-+.,:' ' ' | awk
 }'
 -->
 
-<pre>
+<pre class="prettyprint">
 client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
 client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
 client.put("collections", " lists maps functional combinators (map foreach filter zip")
@@ -382,7 +382,7 @@ client.put("searchbird", " building a distributed search engine using")
 
 现在，我们可以执行一些搜索，返回包含搜索词的文件的键。
 
-<pre>
+<pre class="prettyprint">
 > client.search("functions").get()
 res12: Seq[String] = ArrayBuffer(basics)
 
@@ -404,7 +404,7 @@ res17: Seq[String] = ArrayBuffer(type, advanced)
 
 回想一下，如果调用返回一个 @Future@ ，我们必须使用一个阻塞的 @get()@ 来获取其中包含的值。我们可以使用 @Future.collect@ 命令来创建多个并发请求，并等待所有请求成功返回：
 
-<pre>
+<pre class="prettyprint">
 > import com.twitter.util.Future
 ...
 > Future.collect(Seq(
@@ -427,7 +427,7 @@ h3. 抽象
 
 h5. .../Index.scala
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.searchbird
 
 import scala.collection.mutable
@@ -493,7 +493,7 @@ class ResidentIndex extends Index {
 
 h5. .../SearchbirdServiceImpl.scala
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceImpl(config: SearchbirdServiceConfig, index: Index) extends SearchbirdService.ThriftServer {
   val serverName = "Searchbird"
   val thriftPort = config.thriftPort
@@ -513,7 +513,7 @@ h5. .../config/SearchbirdServiceConfig.scala
 
 相应地更新 @SearchbirdServiceConfig@ 的 @apply@ 调用：
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
   var thriftPort: Int = 9999
   var tracerFactory: Tracer.Factory = NullTracer.factory
@@ -528,7 +528,7 @@ h5. .../Index.scala
 
 在 @Index.scala@ 中定义了 @CompositeIndex@ :
 
-<pre>
+<pre class="prettyprint">
 class CompositeIndex(indices: Seq[Index]) extends Index {
   require(!indices.isEmpty)
 
@@ -563,7 +563,7 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
 
 @RemoteIndex@ 提供了到远程服务器的一个 @Index@ 接口。
 
-<pre>
+<pre class="prettyprint">
 class RemoteIndex(hosts: String) extends Index {
   val transport = ClientBuilder()
     .name("remoteIndex")
@@ -588,7 +588,7 @@ h3. 全部放在一起
 
 h5. .../config/SearchbirdServiceConfig.scala
 
-<pre>
+<pre class="prettyprint">
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
   var thriftPort: Int = 9999
   var shards: Seq[String] = Seq()
@@ -621,7 +621,7 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServe
 
 h5. config/development.scala
 
-<pre>
+<pre class="prettyprint">
 new SearchbirdServiceConfig {
   // Add your own config here
   shards = Seq(
@@ -634,7 +634,7 @@ new SearchbirdServiceConfig {
 
 注释掉 @admin.httpPort@ 的设置（我们不希望在同一台机器上运行多个服务，而不注释的话这些服务都会试图打开相同的端口）：
 
-<pre>
+<pre class="prettyprint">
   // admin.httpPort = 9900
 </pre>
 
@@ -642,7 +642,7 @@ new SearchbirdServiceConfig {
 
 让我们试试吧！我们将启动3个服务：2个分片和1个主节点。首先编译改动：
 
-<pre>
+<pre class="prettyprint">
 $ ./sbt
 > compile
 ...
@@ -651,7 +651,7 @@ $ ./sbt
 
 然后启动三个服务：
 
-<pre>
+<pre class="prettyprint">
 $ ./sbt 'run -f config/development.scala -D shard=0'
 $ ./sbt 'run -f config/development.scala -D shard=1'
 $ ./sbt 'run -f config/development.scala'
@@ -661,13 +661,13 @@ $ ./sbt 'run -f config/development.scala'
 
 然后，我们将通过控制台与它们进行互动。首先，让我们填充一些数据在两个分片节点。从searchbird目录运行：
 
-<pre>
+<pre class="prettyprint">
 $ ./console localhost 9000
 ...
 > client.put("fromShardA", "a value from SHARD_A")
 > client.put("hello", "world")
 </pre>
-<pre>
+<pre class="prettyprint">
 $ ./console localhost 9001
 ...
 > client.put("fromShardB", "a value from SHARD_B")
@@ -676,7 +676,7 @@ $ ./console localhost 9001
 
 一旦完成就可以退出这些控制台会话。现在通过主节点查询我们的数据库（9999端口）：
 
-<pre>
+<pre class="prettyprint">
 $ ./console localhost 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient localhost 9999
 'client' is bound to your thrift client.

@@ -34,7 +34,7 @@ h1. Основные структуры данных
 
 h2(#Lists). Списки
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = List(1, 2, 3, 4)
 numbers: List[Int] = List(1, 2, 3, 4)
 </pre>
@@ -43,7 +43,7 @@ h2(#Sets). Наборы
 
 Наборы не содержат одинаковых элементов
 
-<pre>
+<pre class="prettyprint">
 scala> Set(1, 1, 2)
 res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
@@ -52,14 +52,14 @@ h2(#Tuple). Кортеж
 
 Кортеж объединяет простые логические элементы коллекции без использования классов.
 
-<pre>
+<pre class="prettyprint">
 scala> val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
 </pre>
 
 В отличие от case классов, у него нет именованных функций доступа, вместо этого у него есть функции доступа, которые носят названия по номеру позиции элемента кортежа и они нумер��тся с 1, а не с 0.
 
-<pre>
+<pre class="prettyprint">
 scala> hostPort._1
 res0: String = localhost
 
@@ -69,7 +69,7 @@ res1: Int = 80
 
 Кортежи прекрасно могут использоваться вместе с сопоставлением с образцом.
 
-<pre>
+<pre class="prettyprint">
 hostPort match {
   case ("localhost", port) => ...
   case (host, port) => ...
@@ -78,7 +78,7 @@ hostPort match {
 
 Кортежи имеет специальный "соус", который позволяет сделать Кортеж 2 значений: <code>-></code>
 
-<pre>
+<pre class="prettyprint">
 scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
@@ -89,7 +89,7 @@ h2(#Maps). Карты
 
 Они могут содержать в себе основные типы данных.
 
-<pre>
+<pre class="prettyprint">
 Map(1 -> 2)
 Map("foo" -> "bar")
 </pre>
@@ -100,11 +100,11 @@ Map() тоже использует синтаксис, который мы из
 
 Карты внутри себя могут содержать другие Карты или даже функции.
 
-<pre>
+<pre class="prettyprint">
 Map(1 -> Map("foo" -> "bar"))
 </pre>
 
-<pre>
+<pre class="prettyprint">
 Map("timesTwo" -> { timesTwo(_) })
 </pre>
 
@@ -128,7 +128,7 @@ trait Option[T] {
 
 <code>Map.get</code> использует <code>Option</code> для возврата собственных значений. Опция говорит вам, что метод может не вернуть того значения, которое мы запросили.
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = Map(1 -> "one", 2 -> "two")
 numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
 
@@ -181,14 +181,14 @@ h2(#map). map
 
 Применяет функцию к каждому элементу из списка, возвращается список с тем же числом элементов.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
 или передается частично вызываемая функция
 
-<pre>
+<pre class="prettyprint">
 
 scala> def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
@@ -201,7 +201,7 @@ h2(#foreach). foreach
 
 foreach похож на map, но ничего не возвращает. foreach используется для создания побочных эффектов.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foreach((i: Int) => i * 2)
 </pre>
 
@@ -209,7 +209,7 @@ scala> numbers.foreach((i: Int) => i * 2)
 
 Вы можете попробовать сохранить результат в переменную, но она будет иметь тип Unit (другими словами void)
 
-<pre>
+<pre class="prettyprint">
 scala> val doubled = numbers.foreach((i: Int) => i * 2)
 doubled: Unit = ()
 </pre>
@@ -218,12 +218,12 @@ h2(#filter). filter
 
 Данный комбинатор удаляет любой элемент, если функция, применяемая к этому элементу, возвращает ложь.  Функции, которые возвращают Boolean, часто называются функциями-предикатами
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.filter((i: Int) => i % 2 == 0)
 res0: List[Int] = List(2, 4)
 </pre>
 
-<pre>
+<pre class="prettyprint">
 scala> def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
@@ -235,7 +235,7 @@ h2(#zip). zip
 
 zip объединяет содержимое двух списков в один парный список.
 
-<pre>
+<pre class="prettyprint">
 scala> List(1, 2, 3).zip(List("a", "b", "c"))
 res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
 </pre>
@@ -244,7 +244,7 @@ h2(#partition). partition
 
 <code>partition</code> разделяет список, в зависимости от результата, который возвращает функция-предикат.
 
-<pre>
+<pre class="prettyprint">
 scala> List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition(_ %2 == 0)
 res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
 </pre>
@@ -253,7 +253,7 @@ h2(#find). find
 
 find возвращает первый элемент коллекции, который удовлетворяет функции-предикату.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.find((i: Int) => i > 5)
 res0: Option[Int] = Some(6)
 </pre>
@@ -262,21 +262,21 @@ h2(#drop). drop и dropWhile
 
 <code>drop</code> удаляет первый элемент с индексом i
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
 <code>dropWhile</code> удаляет первый элемент, который не удовлетворяет функции-предикату. Например, если мы применим <code>dropWhile</code> к нечетным числам из нашего списка, то <code>1</code> будет удалена (но не <code>3</code>, которая стоит за <code>2</code>).
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.dropWhile(_ % 2 != 0)
 res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
 </pre>
 
 h2(#fold). foldLeft
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldLeft(0)((m: Int, n: Int) => m + n)
 res0: Int = 55
 </pre>
@@ -286,7 +286,7 @@ res0: Int = 55
 
 Взгляните сами:
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 0 n: 1
 m: 1 n: 2
@@ -305,7 +305,7 @@ h3. foldRight
 
 Этот комбинатор похож на foldLeft, за исключением того, что он работает с противоположной стороны.
 
-<pre>
+<pre class="prettyprint">
 scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 10 n: 0
 m: 9 n: 10
@@ -324,7 +324,7 @@ h2(#flatten). flatten
 
 flatten сжимает вложенн��е структуры.
 
-<pre>
+<pre class="prettyprint">
 scala> List(List(1, 2), List(3, 4)).flatten
 res0: List[Int] = List(1, 2, 3, 4)
 </pre>
@@ -333,7 +333,7 @@ h2(#flatMap). flatMap
 
 flatMap это часто используемый комбинатор, который объединяет map и flatten. flatMap берет функцию, которая работает с вложенными списками и объединяет результаты.
 
-<pre>
+<pre class="prettyprint">
 scala> val nestedNumbers = List(List(1, 2), List(3, 4))
 nestedNumbers: List[List[Int]] = List(List(1, 2), List(3, 4))
 
@@ -343,7 +343,7 @@ res0: List[Int] = List(2, 4, 6, 8)
 
 Думайте об этом, как о коротком способе использования map, а затем применения flatten к результату:
 
-<pre>
+<pre class="prettyprint">
 scala> nestedNumbers.map((x: List[Int]) => x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
@@ -360,7 +360,7 @@ h2(#generalized). Обобщенные функциональные комбин
 
 Интересно, что каждый функциональный комбинатор показанный выше, может быть написан поверх fold. Рассмотрим несколько примеров.
 
-<pre>
+<pre class="prettyprint">
 def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
   numbers.foldRight(List[Int]()) { (x: Int, xs: List[Int]) =>
     fn(x) :: xs
@@ -377,14 +377,14 @@ h2(#vsMap). А как же Map?
 
 Все функциональные комбинаторы прекрасно работают и с Картами. Карты можно рассматривать как список пар, так что функции, которые вы пишете работают с парами ключей и значений Карты.
 
-<pre>
+<pre class="prettyprint">
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
 теперь выберем каждую запись, у которой телефонный код мен��ше 200.
 
-<pre>
+<pre class="prettyprint">
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
@@ -393,7 +393,7 @@ res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 
 К счастью, мы можем использовать сопоставление с образцом, чтобы извлечь ключ и значение.
 
-<pre>
+<pre class="prettyprint">
 scala> extensions.filter({case (name, extension) => extension < 200})
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>

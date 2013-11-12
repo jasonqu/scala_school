@@ -28,7 +28,7 @@ h2(#example). 扩展规格
 
 让我们直接开始。
 
-<pre>
+<pre class="prettyprint">
 import org.specs._
 
 object ArithmeticSpec extends Specification {
@@ -57,7 +57,7 @@ h3. 复制
 
 注意到两个测试都是怎样将 @add@ 加在其名称中的吗？我们可以通过 *嵌套* 预期摆脱这种重复。
 
-<pre>
+<pre class="prettyprint">
 import org.specs._
 
 object ArithmeticSpec extends Specification {
@@ -76,7 +76,7 @@ object ArithmeticSpec extends Specification {
 
 h2(#scope). 执行模型
 
-<pre>
+<pre class="prettyprint">
 object ExecSpec extends Specification {
   "Mutations are isolated" should {
     var x = 0
@@ -95,7 +95,7 @@ h2(#setup). Setup, Teardown
 
 h3. doBefore & doAfter
 
-<pre>
+<pre class="prettyprint">
 "my system" should {
   doBefore { resetTheSystem() /** user-defined reset function */ }
   "mess up the system" in {...}
@@ -110,7 +110,7 @@ h3. doFirst & doLast
 
 @doFirst@/@doLast@ 用来做一次性的设置。（需要例子，我不使用这个）
 
-<pre>
+<pre class="prettyprint">
 "Foo" should {
   doFirst { openTheCurtains() }
   "test stateless methods" in {...}
@@ -127,7 +127,7 @@ h3. mustEqual
 
 我们已经看到几个mustEqual的例子了。
 
-<pre>
+<pre class="prettyprint">
 1 mustEqual 1
 
 "a" mustEqual "a"
@@ -137,7 +137,7 @@ h3. mustEqual
 
 h3. 序列中的元素
 
-<pre>
+<pre class="prettyprint">
 val numbers = List(1, 2, 3)
 
 numbers must contain(1)
@@ -152,7 +152,7 @@ List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4),
 
 h3. 映射中的元素
 
-<pre>
+<pre class="prettyprint">
 map must haveKey(k)
 map must notHaveKey(k)
 
@@ -162,7 +162,7 @@ map must notHaveValue(v)
 
 h3. 数字
 
-<pre>
+<pre class="prettyprint">
 a must beGreaterThan(b)
 a must beGreaterThanOrEqualTo(b)
 
@@ -175,7 +175,7 @@ a must beCloseTo(b, delta)
 
 h3. Options
 
-<pre>
+<pre class="prettyprint">
 a must beNone
 
 a must beSome[Type]
@@ -187,7 +187,7 @@ a must beSome(value)
 
 h3. throwA
 
-<pre>
+<pre class="prettyprint">
 a must throwA[WhateverException]
 </pre>
 
@@ -195,13 +195,13 @@ a must throwA[WhateverException]
 
 您也可以期望一个特定的消息
 
-<pre>
+<pre class="prettyprint">
 a must throwA(WhateverException("message"))
 </pre>
 
 您也可以匹配异常：
 
-<pre>
+<pre class="prettyprint">
 a must throwA(new Exception) like {
   case Exception(m) => m.startsWith("bad")
 }
@@ -210,13 +210,13 @@ a must throwA(new Exception) like {
 
 h3. 编写你自己的匹配器
 
-<pre>
+<pre class="prettyprint">
 import org.specs.matcher.Matcher
 </pre>
 
 h4. 作为一个不变量
 
-<pre>
+<pre class="prettyprint">
 "A matcher" should {
   "be created as a val" in {
     val beEven = new Matcher[Int] {
@@ -233,7 +233,7 @@ h4. 作为一个不变量
 
 h4. 作为一个样本类
 
-<pre>
+<pre class="prettyprint">
 case class beEven(b: Int) extends Matcher[Int]() {
   def apply(n: => Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
 }
@@ -243,7 +243,7 @@ case class beEven(b: Int) extends Matcher[Int]() {
 
 h2(#mocks). Mocks
 
-<pre>
+<pre class="prettyprint">
 import org.specs.Specification
 import org.specs.mock.Mockito
 
@@ -270,7 +270,7 @@ h2(#spies). Spies
 
 Spies（间谍）可以对真正的对象做一些“局部mocking”：
 
-<pre>
+<pre class="prettyprint">
 val list = new LinkedList[String]
 val spiedList = spy(list)
 
@@ -287,26 +287,26 @@ there was one(spiedList).add("one")
 
 然而，使用间谍可能会出现非常诡异的情况：
 
-<pre>
+<pre class="prettyprint">
 // if the list is empty, this will throws an IndexOutOfBoundsException
 spiedList.get(0) returns "one"
 </pre>
 
 这里必须使用 @doReturn@ ：
 
-<pre>
+<pre class="prettyprint">
 doReturn("one").when(spiedList).get(0)
 </pre>
 
 h2(#sbt). 在sbt中运行单个specs
 
-<pre>
+<pre class="prettyprint">
 > test-only com.twitter.yourservice.UserSpec
 </pre>
 
 将只运行那个规范。
 
-<pre>
+<pre class="prettyprint">
 > ~ test-only com.twitter.yourservice.UserSpec
 </pre>
 

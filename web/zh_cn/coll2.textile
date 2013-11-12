@@ -21,14 +21,14 @@ h3. 表 List
 
 标准的链表。
 
-<pre>
+<pre class="prettyprint">
 scala> List(1, 2, 3)
 res0: List[Int] = List(1, 2, 3)
 </pre>
 
 你可以用函数式语言的方式连接它们。
 
-<pre>
+<pre class="prettyprint">
 scala> 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
@@ -39,7 +39,7 @@ h3. 集 Set
 
 集没有重复
 
-<pre>
+<pre class="prettyprint">
 scala> Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
@@ -50,7 +50,7 @@ h3. 序列 Seq
 
 序列有一个给定的顺序。
 
-<pre>
+<pre class="prettyprint">
 scala> Seq(1, 1, 2)
 res3: Seq[Int] = List(1, 1, 2)
 </pre>
@@ -63,7 +63,7 @@ h3. 映射 Map
 
 映射是键值容器。
 
-<pre>
+<pre class="prettyprint">
 scala> Map('a' -> 1, 'b' -> 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
@@ -110,7 +110,7 @@ h3. Traversable
 
 下面所有方法在子类中都是可用的。参数和返回值的类型可能会因为子类的覆盖而看起来不同。
 
-<pre>
+<pre class="prettyprint">
 def head : A
 def tail : Traversable[A]
 </pre>
@@ -157,7 +157,7 @@ def groupBy [K] (f: (A) => K) : Map[K, Traversable[A]]
 
 有趣的是，你可以转换集合类型。
 
-<pre>
+<pre class="prettyprint">
 def toArray : Array[A]
 def toArray [B >: A] (implicit arg0: ClassManifest[B]) : Array[B]
 def toBuffer [B >: A] : Buffer[B]
@@ -175,7 +175,7 @@ def toTraversable : Traversable[A]
 
 把映射转换为一个数组，您会得到一个键值对的数组。
 
-<pre>
+<pre class="prettyprint">
 scala> Map(1 -> 2).toArray
 res41: Array[(Int, Int)] = Array((1,2))
 </pre>
@@ -184,13 +184,13 @@ h3. Iterable
 
 添加一个迭代器的访问。
 
-<pre>
+<pre class="prettyprint">
   def iterator: Iterator[A]
 </pre>
 
 一个迭代器能给你提供什么？
 
-<pre>
+<pre class="prettyprint">
 def hasNext(): Boolean
 def next(): A
 </pre>
@@ -199,7 +199,7 @@ def next(): A
 
 h3. Set
 
-<pre>
+<pre class="prettyprint">
   def contains(key: A): Boolean
   def +(elem: A): Set[A]
   def -(elem: A): Set[A]
@@ -211,14 +211,14 @@ h3. Map
 
 可以像这样将一个键值对列表传入apply()
 
-<pre>
+<pre class="prettyprint">
 scala> Map("a" -> 1, "b" -> 2)
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
 </pre>
 
 或者像这样：
 
-<pre>
+<pre class="prettyprint">
 scala> Map(("a", 2), ("b", 2))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
 </pre>
@@ -227,7 +227,7 @@ h6. 题外话
 
 什么是<code>-></code>？这不是特殊的语法，这是一个返回元组的方法。
 
-<pre>
+<pre class="prettyprint">
 scala> "a" -> 2
 
 res0: (java.lang.String, Int) = (a,2)
@@ -235,7 +235,7 @@ res0: (java.lang.String, Int) = (a,2)
 
 请记住，这仅仅是下面代码的语法糖
 
-<pre>
+<pre class="prettyprint">
 scala> "a".->(2)
 
 res1: (java.lang.String, Int) = (a,2)
@@ -243,7 +243,7 @@ res1: (java.lang.String, Int) = (a,2)
 
 您也可以使用<code>++</code>操作符构建
 
-<pre>
+<pre class="prettyprint">
 scala> Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
 </pre>
@@ -256,14 +256,14 @@ h3. 常用的子类
 
 *Vector* 快速随机选择和快速更新。 "Vector API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html 
 
-<pre>
+<pre class="prettyprint">
 scala> IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 
 *Range* 等间隔的Int有序序列。你经常会在for循环看到。 "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
 
-<pre>
+<pre class="prettyprint">
 scala> for (i <- 1 to 3) { println(i) }
 1
 2
@@ -272,7 +272,7 @@ scala> for (i <- 1 to 3) { println(i) }
 
 Ranges支持标准的函数组合子。 
 
-<pre>
+<pre class="prettyprint">
 scala> (1 to 3).map { i => i }
 res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
@@ -281,7 +281,7 @@ h3. 默认实现
 
 使用特质的apply方法会给你默认实现的实例，例如，Iterable(1, 2)会返回一个列表作为其默认实现。 
 
-<pre>
+<pre class="prettyprint">
 scala> Iterable(1, 2)
 
 res0: Iterable[Int] = List(1, 2)
@@ -289,7 +289,7 @@ res0: Iterable[Int] = List(1, 2)
 
 序列Seq也是一样的，正如我们前面所看到的
  
-<pre>
+<pre class="prettyprint">
 scala> Seq(1, 2)
 res3: Seq[Int] = List(1, 2)
 
@@ -303,7 +303,7 @@ res2: Seq[Int] = List(1, 2)
 
 Set
 
-<pre>
+<pre class="prettyprint">
 scala> Set(1, 2)
 res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
@@ -334,7 +334,7 @@ h2(#mutable). 可变集合
 
 *HashMap* 定义了 @getOrElseUpdate@, @+=@ "HashMap API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html 
 
-<pre>
+<pre class="prettyprint">
 scala> val numbers = collection.mutable.Map(1 -> 2)
 numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
 
@@ -366,7 +366,7 @@ h2(#java). 与Java生活
 
 您可以通过<a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>轻松地在Java和Scala的集合类型之间转换。它用<code>asScala</code> 装饰常用的Java集合以和用<code>asJava</code> 方法装饰Scala集合。
 
-<pre>
+<pre class="prettyprint">
    import scala.collection.JavaConverters._
    val sl = new scala.collection.mutable.ListBuffer[Int]
    val jl : java.util.List[Int] = sl.asJava
@@ -376,7 +376,7 @@ h2(#java). 与Java生活
 
 双向转换：
 
-<pre>
+<pre class="prettyprint">
 scala.collection.Iterable <=> java.lang.Iterable
 scala.collection.Iterable <=> java.util.Collection
 scala.collection.Iterator <=> java.util.{ Iterator, Enumeration }
@@ -388,7 +388,7 @@ scala.collection.mutable.ConcurrentMap <=> java.util.concurrent.ConcurrentMap
 
 此外，也提供了以下单向转换
 
-<pre>
+<pre class="prettyprint">
 scala.collection.Seq => java.util.List
 scala.collection.mutable.Seq => java.util.List
 scala.collection.Set => java.util.Set

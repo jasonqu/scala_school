@@ -19,7 +19,7 @@ h2. Javap
 
 javap - это это инструмент, который поставляется вместе с JDK. Не с JRE. Между ними есть разница. Javap декомпилирует определения класса и показывает вам, что внутри. Использовать его довольно просто
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
 public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
@@ -30,7 +30,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 
 Если вы преподчитаете что-нибудь пожестче, то можете поглядеть на байткод
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
 Compiled from "Scalaisms.scala"
 public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
@@ -61,7 +61,7 @@ h2. Классы
 
 Мы спроектируем простой Scala класс, чтобы показать полный спектр возможностей
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop
 
 import java.io.IOException
@@ -93,7 +93,7 @@ h3. Параметры класса
 
 * по умолчанию, параметры класса являются эффективными аргументами конструктора в Java.  Это означает, что вы не можете получить доступ к ним вне класса.
 
-<pre>
+<pre class="prettyprint">
 class SimpleClass(acc_: String) {
   val acc = acc_
 }
@@ -109,7 +109,7 @@ h3. Var переменные
 
 * var переменные определяют метод <name>_$eq. Вы можете вызвать его так
 
-<pre>
+<pre class="prettyprint">
 foo$_eq("newfoo");
 </pre>
 
@@ -117,7 +117,7 @@ h3. BeanProperty
 
 Вым можете комментировать val и var переменные с помощью @BeanProperty. Она генерирует геттеры/сеттеры подобно тому, как определяются POJO геттеры/сеттеры. Если вам нужен вариант isFoo, используйте аннотацию BooleanBeanProperty. Ранее уродливый foo$_eq становится
 
-<pre>
+<pre class="prettyprint">
 setFoo("newfoo");
 getFoo();
 </pre>
@@ -127,7 +127,7 @@ h3. Исключения
 
 Scala не проверяет исключения. Java проверяет. Мы не будем вдаваться, в этот философский спор, но это *важно*, когда вы хотите иметь возможность отлавливать исключения в Java. Определения dangerFoo и dangerBar демонстрируют это. В Java я не могу сделать этого
 
-<pre>
+<pre class="prettyprint">
         // исключение стирается!
         try {
             s.dangerFoo();
@@ -149,7 +149,7 @@ h2. Трейты
 
 Как можно получить интерфейс + реализация? Давайте возьмем простое определение трейта и посмотрим
 
-<pre>
+<pre class="prettyprint">
 trait MyTrait {
   def traitName:String
   def upperTraitName = traitName.toUpperCase
@@ -160,7 +160,7 @@ trait MyTrait {
 
 Реализация MyTrait, то что вы ожидаете
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
 public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
@@ -171,7 +171,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 
 Реализация MyTrait$class более интерресна
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
 Compiled from "Scalaisms.scala"
 public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
@@ -184,7 +184,7 @@ MyTrait$class имеет только статичные методы, кото�
 
 Наша первая попытка реализована ниже
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop;
 
 public class JTraitImpl implements MyTrait {
@@ -202,7 +202,7 @@ public class JTraitImpl implements MyTrait {
 
 И мы получаем следущую ошибку
 
-<pre>
+<pre class="prettyprint">
 [info] Compiling main sources...
 [error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
 [error] public class JTraitImpl implements MyTrait {
@@ -211,7 +211,7 @@ public class JTraitImpl implements MyTrait {
 
 мы _можем_ просто реализовать это сами. Но есть другой способ.
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.interop;
 
     public String upperTraitName() {
@@ -227,7 +227,7 @@ h2.  Объекты
 
 Объект Scala компилируется в класс, имя которого заканчивается на "$". Давайте создадим класс и соответствующий объект
  
-<pre>
+<pre class="prettyprint">
 class TraitImpl(name: String) extends MyTrait {
   def traitName = name
 }
@@ -240,13 +240,13 @@ object TraitImpl {
 
 Мы можем просто обратиться к нему в Java, например так
 
-<pre>
+<pre class="prettyprint">
 MyTrait foo = TraitImpl$.MODULE$.apply("foo");
 </pre>
 
 Сейчас вы можете спросить себя, что это за чушь? Это верно. давайте посмотрим что внутри TraitImpl$
 
-<pre>
+<pre class="prettyprint">
 local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
 Compiled from "Scalaisms.scala"
 public final class com.twitter.interop.TraitImpl$ extends java.lang.Object implements scala.ScalaObject{
@@ -263,7 +263,7 @@ h3. Методы переадресации
 
 В Scala 2.8 работать с объектами стало немного проще. Если у вас есть класс с соответствующим объектом, на 2.8 компилятор сгенерирует методы переадресации на класс-спутник. Так что, если вы написали код на 2.8, вы можете получить доступ к методам в объекте TraitImpl, например так
 
-<pre>
+<pre class="prettyprint">
 MyTrait foo = TraitImpl.apply("foo");
 </pre>
 
@@ -271,7 +271,7 @@ h2. Замыкания
 
 Одной из важных особенностей Scala является возможность использования функций первого рода. Давайте определим класс, который имеет методы, принимающие функции в качестве аргументов.
 
-<pre>
+<pre class="prettyprint">
 class ClosureClass {
   def printResult[T](f: => T) = {
     println(f)
@@ -285,14 +285,14 @@ class ClosureClass {
 
 В Scala я могу вызвать их, например так
 
-<pre>
+<pre class="prettyprint">
 val cc = new ClosureClass
 cc.printResult { "HI MOM" }
 </pre>
 
 В Java это не так просто, но тоже не сложно. Давайте посмотрим из чего на самом деле состоит ClosureClass:
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
 Compiled from "Scalaisms.scala"
 public class com.twitter.interop.ClosureClass extends java.lang.Object implements scala.ScalaObject{
@@ -307,7 +307,7 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
 Теперь нам нужно определить, как это сделать в Java. Оказывается Scala предоставляет AbstractFunction0 и AbstractFunction1, которые мы можем передать вот так
 
 
-<pre>
+<pre class="prettyprint">
     @Test public void closureTest() {
         ClosureClass c = new ClosureClass();
         c.printResult(new AbstractFunction0() {

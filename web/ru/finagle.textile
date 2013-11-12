@@ -11,7 +11,7 @@ h2. Futures
 
 Finagle использует <code>com.twitter.util.Future</code>[1], чтобы описать отложенные операции. Futures очень выразительны и компактны, они позволяют кратко описать параллельные и последовательные операции с большой ясностью. Futures управляют значениями, которые еще не доступны, с методами для регистрации обратного вызова, который вызывается, когда значение становится доступным. Они переворачивают с ног на голову "традиционную" модель асинхронных вычислений, которые обычно предоставляют API, похожее на это:
 
-<pre>
+<pre class="prettyprint">
 Callback<R> cb = new Callback<R>() {
   void onComplete(R result) { … }
   void onFailure(Throwable error) { … }
@@ -22,7 +22,7 @@ dispatch(req, cb);
 
 Здесь <code>Callback.onComplete</code> вызывается, когда результат операции <code>dispatch</code> становится доступен, и <code>Callback.onFailure</code> если операция провалилась. �� futures, мы переворачиваем поток управления:
 
-<pre>
+<pre class="prettyprint">
 val future = dispatch(req)
 future onSuccess { value => … }
 future onFailure { error => … }
@@ -42,7 +42,7 @@ h3. Последовательная композиция
 
 Как пример, давайте предположим, что у нас есть методы <code>authenticate: Request -> User</code>, и <code>rateLimit: User -> Boolean</code>, тогда получим следующий код:
 
-<pre>
+<pre class="prettyprint">
 val f = authenticate(request) flatMap { u =>
   rateLimit(u) map { r => (u, r)
 }
@@ -50,7 +50,7 @@ val f = authenticate(request) flatMap { u =>
 
 С помощью конструкции for, мы можем написать:
 
-<pre>
+<pre class="prettyprint">
 val f = for {
   u <- authenticate(request)
   r <- rateLimit(u)
@@ -63,7 +63,7 @@ h3. Параллельная композиция
 
 Есть также несколько параллельных комбинаторов. Обычно они конвертируют последовательность <code>Future</code>-ов в <code>Future</code> последовательность, по-разному:
 
-<pre>
+<pre class="prettyprint">
 object Future {
   …
   def collect[A](fs: Seq[Future[A]]): Future[Seq[A]]
@@ -80,7 +80,7 @@ object Future {
 
 В совокупности, это дает нам мощное и краткое выражение основных сетевых операций. Этот гипотетический код выполняет установку ограничений (с целью сохранения локального кеша) параллелльно с управлением запросами пол��зователя на серверной стороне:
 
-<pre>
+<pre class="prettyprint">
 def serve(request: Request): Future[Response] = {
   val userLimit: Future[(User, Boolean)] =
     for {
@@ -114,7 +114,7 @@ h2. Service
 
 Простой HTTP клиент может делать:
 
-<pre>
+<pre class="prettyprint">
 service: Service[HttpRequest, HttpResponse]
 
 val f = service(HttpRequest("/", HTTP_1_1))
@@ -127,7 +127,7 @@ f onSuccess { res =>
 
 Серверы реализуют <code>Service</code>:
 
-<pre>
+<pre class="prettyprint">
 class MyServer 
   extends Service[HttpRequest, HttpResponse]
 {
@@ -144,7 +144,7 @@ class MyServer
 
 Комбинировать их просто. Простейший прокси может выглядеть так:
 
-<pre>
+<pre class="prettyprint">
 class MyServer(client: Service[..])
   extends Service[HttpRequest, HttpResponse]
 {
@@ -162,14 +162,14 @@ h2. Фильтры
 
 Фильтры - это service преобразователи. Они полезны как для предоставления функциональности <em>обобщенный service</em>, так и для производства данного service в различных состояниях.
 
-<pre>
+<pre class="prettyprint">
 abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
   extends ((ReqIn, Service[ReqOut, RepIn]) => Future[RepOut])
 </pre>
 
 Его тип лучше рассмотреть схематически:
 
-<pre>
+<pre class="prettyprint">
     ((ReqIn, Service[ReqOut, RepIn]) 
          => Future[RepOut])
 
@@ -180,7 +180,7 @@ abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 
 Здесь показан способ как вы можете написать фильтр, который является механизмом задержки service.
 
-<pre>
+<pre class="prettyprint">
 class TimeoutFilter[Req, Rep](
     timeout: Duration, timer: util.Timer)
   extends Filter[Req, Rep, Req, Rep]
@@ -197,7 +197,7 @@ class TimeoutFilter[Req, Rep](
 
 Этот пример показывает как вы можете использовать аутентификацию (через сервис аутентификации) для того, чтобы конвертировать  <code>Service[AuthHttpReq, HttpRep]</code> в <code>Service[HttpReq, HttpRep]</code>.
 
-<pre>
+<pre class="prettyprint">
 class RequireAuthentication(authService: AuthService)
   extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 {
@@ -218,7 +218,7 @@ class RequireAuthentication(authService: AuthService)
 
 Фильтры объединяются вместе с <code>andThen</code>. Предоставляя <code>Service</code> как аргумент для <code>andThen</code>, создающий  (отфильтрованный) <code>Service</code> (типы представлены для иллюстрации).
 
-<pre>
+<pre class="prettyprint">
 val authFilter: Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 val timeoutfilter[Req, Rep]: Filter[Req, Rep, Req, Rep]
 val serviceRequiringAuth: Service[AuthHttpReq, HttpRep]
@@ -236,7 +236,7 @@ h2. Компоновщики
 
 Ниже представлен пример вызова <code>ClientBuilder</code> (типы представлены для иллюстрации):
 
-<pre>
+<pre class="prettyprint">
 val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
   .codec(Http)
   .hosts("host1.twitter.com:10000,host2.twitter.com:10001,host3.twitter.com:10003")
@@ -249,7 +249,7 @@ val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
 
 Здесь создается клиент, который выравнивает нагрузку 3 данных хостов, устанавливая более чем 1 соединение на хост, и падает только после 2 неудач. Статистика собирается с помощью "ostrich":https://github.com/twitter/ostrich. Требуются следующие опции компоновщика (и они обычно присутствуют постоянно): <code>hosts</code> или <code>cluster</code>, <code>codec</code> и <code>hostConnectionLimit</code>.
 
-<pre>
+<pre class="prettyprint">
 val myService: Service[HttpRequest, HttpResponse] = // provided by the user
 ServerBuilder()
   .codec(Http)

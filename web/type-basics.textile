@@ -21,7 +21,7 @@ According to Pierce: "A type system is a syntactic method for automatically chec
 
 Types allow you to denote function domain & codomains. For example, from mathematics, we are used to seeing:
 
-<pre>
+<pre class="prettyprint">
 f: R -> N
 </pre>
 
@@ -52,14 +52,14 @@ Polymorphism is used in order to write generic code (for values of different typ
 
 For example, without parametric polymorphism, a generic list data structure would always look like this (and indeed it did look like this in Java prior to generics):
 
-<pre>
+<pre class="prettyprint">
 scala> 2 :: 1 :: "bar" :: "foo" :: Nil
 res5: List[Any] = List(2, 1, bar, foo)
 </pre>
 
 Now we cannot recover any type information about the individual members.
 
-<pre>
+<pre class="prettyprint">
 scala> res5.head
 res6: Any = 2
 </pre>
@@ -68,7 +68,7 @@ And so our application would devolve into a series of casts ("asInstanceOf[]") a
 
 Polymorphism is achieved through specifying _type variables_.
 
-<pre>
+<pre class="prettyprint">
 scala> def drop1[A](l: List[A]) = l.tail
 drop1: [A](l: List[A])List[A]
 
@@ -80,19 +80,19 @@ h3. Scala has rank-1 polymorphism
 
 Roughly, this means that there are some type concepts you'd like to express in Scala that are "too generic" for the compiler to understand. Suppose you had some function
 
-<pre>
+<pre class="prettyprint">
 def toList[A](a: A) = List(a)
 </pre>
 
 which you wished to use generically:
 
-<pre>
+<pre class="prettyprint">
 def foo[A, B](f: A => List[A], b: B) = f(b)
 </pre>
 
 This does not compile, because all type variables have to be fixed at the invocation site. Even if you "nail down" type <code>B</code>,
 
-<pre>
+<pre class="prettyprint">
 def foo[A](f: A => List[A], i: Int) = f(i)
 </pre>
 
@@ -108,7 +108,7 @@ Scala's type inference system works a little differently, but it's similar in sp
 
 In Scala, for example, you cannot do the following:
 
-<pre>
+<pre class="prettyprint">
 scala> { x => x }
 <console>:7: error: missing parameter type
        { x => x }
@@ -116,14 +116,14 @@ scala> { x => x }
 
 Whereas in OCaml, you can:
 
-<pre>
+<pre class="prettyprint">
 # fun x -> x;;
 - : 'a -> 'a = <fun>
 </pre>
 
 In scala all type inference is _local_. Scala considers one expression at a time. For example:
 
-<pre>
+<pre class="prettyprint">
 scala> def id[T](x: T) = x
 id: [T](x: T)T
 
@@ -150,7 +150,7 @@ Scala's type system has to account for class hierarchies together with polymorph
 
 The subtype relationship really means: for a given type T, if T' is a subtype, can you substitute it?
 
-<pre>
+<pre class="prettyprint">
 scala> class Covariant[+A]
 defined class Covariant
 
@@ -165,7 +165,7 @@ scala> val cv: Covariant[String] = new Covariant[AnyRef]
                                    ^
 </pre>
 
-<pre>
+<pre class="prettyprint">
 scala> class Contravariant[-A]
 defined class Contravariant
 
@@ -182,13 +182,13 @@ scala> val fail: Contravariant[AnyRef] = new Contravariant[String]
 
 Contravariance seems strange. When is it used? Somewhat surprising!
 
-<pre>
+<pre class="prettyprint">
 trait Function1 [-T1, +R] extends AnyRef
 </pre>
 
 If you think about this from the point of view of substitution, it makes a lot of sense. Let's first define a simple class hierarchy:
 
-<pre>
+<pre class="prettyprint">
 scala> class Animal { val sound = "rustle" }
 defined class Animal
 
@@ -201,20 +201,20 @@ defined class Chicken
 
 Suppose you need a function that takes a <code>Bird</code> param:
 
-<pre>
+<pre class="prettyprint">
 scala> val getTweet: (Bird => String) = // TODO
 </pre>
 
 The standard animal library has a function that does what you want, but it takes an <code>Animal</code> parameter instead.  In most situations, if you say "I need a ___, I have a subclass of ___", you're OK. But function parameters are contravariant. If you need a function that takes a <code>Bird</code> and you have a function that takes an <code>Chicken</code>, that function would choke on a <code>Duck</code>. But a function that takes an <code>Animal</code> is OK:
 
-<pre>
+<pre class="prettyprint">
 scala> val getTweet: (Bird => String) = ((a: Animal) => a.sound )
 getTweet: Bird => String = <function1>
 </pre>
 
 A function's return value type is covariant. If you need a function that returns a <code>Bird</code> but have a function that returns a <code>Chicken</code>, that's great.
 
-<pre>
+<pre class="prettyprint">
 scala> val hatch: (() => Bird) = (() => new Chicken )
 hatch: () => Bird = <function0>
 </pre>
@@ -223,7 +223,7 @@ h2(#bounds). Bounds
 
 Scala allows you to restrict polymorphic variables using _bounds_. These bounds express subtype relationships.
 
-<pre>
+<pre class="prettyprint">
 scala> def cacophony[T](things: Seq[T]) = things map (_.sound)
 <console>:7: error: value sound is not a member of type parameter T
        def cacophony[T](things: Seq[T]) = things map (_.sound)
@@ -238,7 +238,7 @@ res5: Seq[java.lang.String] = List(cluck, call)
 
 Lower type bounds are also supported; they come in handy with contravariance and clever covariance. <code>List[+T]</code> is covariant; a list of Birds is a list of Animals. <code>List</code> defines an operator <code>::(elem T)</code> that returns a new <code>List</code> with <code>elem</code> prepended. The new <code>List</code> has the same type as the original:
 
-<pre>
+<pre class="prettyprint">
 scala> val flock = List(new Bird, new Bird)
 flock: List[Bird] = List(Bird@7e1ec70e, Bird@169ea8d2)
 
@@ -248,7 +248,7 @@ res53: List[Bird] = List(Chicken@56fbda05, Bird@7e1ec70e, Bird@169ea8d2)
 
 <code>List</code> _also_ defines <code>::[B >: T](x: B)</code> which returns a <code>List[B]</code>. Notice the <code>B >: T</code>. That specifies type <code>B</code> as a superclass of <code>T</code>. That lets us do the right thing when prepending an <code>Animal</code> to a <code>List[Bird]</code>:
 
-<pre>
+<pre class="prettyprint">
 scala> new Animal :: flock
 res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
@@ -259,35 +259,35 @@ h2(#quantification). Quantification
 
 Sometimes you do not care to be able to name a type variable, for example:
 
-<pre>
+<pre class="prettyprint">
 scala> def count[A](l: List[A]) = l.size
 count: [A](List[A])Int
 </pre>
 
 Instead you can use "wildcards":
 
-<pre>
+<pre class="prettyprint">
 scala> def count(l: List[_]) = l.size
 count: (List[_])Int
 </pre>
 
 This is shorthand for:
 
-<pre>
+<pre class="prettyprint">
 scala> def count(l: List[T forSome { type T }]) = l.size
 count: (List[T forSome { type T }])Int
 </pre>
 
 Note that quantification can get tricky:
 
-<pre>
+<pre class="prettyprint">
 scala> def drop1(l: List[_]) = l.tail
 drop1: (List[_])List[Any]
 </pre>
 
 Suddenly we lost type information! To see what's going on, revert to the heavy-handed syntax:
 
-<pre>
+<pre class="prettyprint">
 scala> def drop1(l: List[T forSome { type T }]) = l.tail
 drop1: (List[T forSome { type T }])List[T forSome { type T }]
 </pre>
@@ -296,7 +296,7 @@ We can't say anything about T because the type does not allow it.
 
 You may also apply bounds to wildcard type variables:
 
-<pre>
+<pre class="prettyprint">
 scala> def hashcodes(l: Seq[_ <: AnyRef]) = l map (_.hashCode)
 hashcodes: (Seq[_ <: AnyRef])Seq[Int]
 

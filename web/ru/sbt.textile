@@ -32,14 +32,14 @@ h2. Давайте начнем
 * Загрузите jar-файл :http://code.google.com/p/simple-build-tool/downloads/list
 * Создайте sbt шелл-скрипт, который вызывает jar, например
 
-<pre>
+<pre class="prettyprint">
 java -Xmx512M -jar sbt-launch.jar "$@"
 </pre>
 
 * уедитесь, что скрипт является исполняемым и находится в указанном вами пути
 * запустите sbt, чтобы создать ваш проект
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects]$ sbt
 Project does not exist, create new project? (y/N/s) y
 Name: sample
@@ -86,7 +86,7 @@ h2. Добавление кода
 следующий код в
 src/main/scala/com/twitter/sample/SimpleParser.scala
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 case class SimpleParsed(id: Long, text: String)
@@ -114,11 +114,11 @@ h2. Тестирование в Консоли
 
 SBT может использоваться как скрипт командной строки или как консоль для сборки. Мы будем использовать его в основном как консоль для сборки, но большинство комманд могут быть использованы в качестве аргументов при передаче их в SBT, например
 
-<pre>
+<pre class="prettyprint">
 sbt test
 </pre>
 Заметьте, что если команда принимает аргументы, то вы должны заключить в кавычки внутренний путь аргумента, например
-<pre>
+<pre class="prettyprint">
 sbt 'test-only com.twitter.sample.SampleSpec'
 </pre>
 
@@ -126,7 +126,7 @@ sbt 'test-only com.twitter.sample.SampleSpec'
 
 В любом случае, начните работу с вашим кодом, запустив sbt
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/sbt-sample]$ sbt
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
@@ -137,7 +137,7 @@ SBT позволяет вам запустить Scala REPL со всеми ва
 Перед запуском консоли, сначала компилируется исходный код вашего проекта,
 предоставляя нам быстрый способ прогнать тест нашего парсера.
 
-<pre>
+<pre class="prettyprint">
 > console
 [info] 
 [info] == compile ==
@@ -172,7 +172,7 @@ scala>
 
 Наш код скомпилировался, и мы попадаем в обычный Scala REPL. Мы создадим новый парсер, тестовый твит, и убедимся, что все "работает"
 
-<pre>
+<pre class="prettyprint">
 scala> import com.twitter.sample._            
 import com.twitter.sample._
 
@@ -194,7 +194,7 @@ h2. Добавление зависимостей
 
 SBT считает Scala файлы в директории project/build, как файлы описания проекта. Добавьте следующее в файл project/build/SampleProject.scala
 
-<pre>
+<pre class="prettyprint">
 import sbt._
 
 class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
@@ -207,7 +207,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 
 Вы о��ъявляете зависимости с помощью val. SBT использует отражение, чтобы найти все val зависимости в вашем проекте и построить дерево зависимостей во время сборки. Синтаксис может показаться новым, но он эквивалентен тому, что используется в Maven
 
-<pre>
+<pre class="prettyprint">
 <dependency>
   <groupId>org.codehaus.jackson</groupId>
   <artifactId>jackson-core-asl</artifactId>
@@ -223,7 +223,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 
 Теперь мы можем получить все зависимости вашего проекта. В командной строке (не в sbt консоли), наберите sbt update
 
-<pre>
+<pre class="prettyprint">
 [local ~/projects/sbt-sample]$ sbt update
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using SampleProject with sbt 0.7.4 and Scala 2.7.7
@@ -248,7 +248,7 @@ h2. Добавление тестов
 Теперь, когда была добавлена тестовая библиотека, добавьте следующий код в
 src/test/scala/com/twitter/sample/SimpleParserSpec.scala
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 import org.specs._
@@ -272,7 +272,7 @@ object SimpleParserSpec extends Specification {
 
 Запустите тест, набрав в sbt консоли 
 
-<pre>
+<pre class="prettyprint">
 > test
 [info] 
 [info] == compile ==
@@ -326,7 +326,7 @@ object SimpleParserSpec extends Specification {
 
 Наш тест работает! Теперь можем добавить еще кода. Одной из прекрасных вещей SBT является возможностть запускать условые действия. До запуска какого-то действия, стартует цикл, который запускает событие, как только происходит изменение в исходниках. Давайте запустим ~test и посмотрим, что произойдет.
 
-<pre>
+<pre class="prettyprint">
 [info] == test ==
 [success] Successful.
 [info] 
@@ -336,7 +336,7 @@ object SimpleParserSpec extends Specification {
 
 Теперь давайте добавим следующий набор тестов
 
-<pre>
+<pre class="prettyprint">
     "reject a non-JSON tweet" in {
       val tweet = """"id":1,"text":"foo""""
       parser.parse(tweet) match {
@@ -367,7 +367,7 @@ object SimpleParserSpec extends Specification {
 
 После того как мы сохраним наш файл, SBT определит наши изменения, запустит тесты и проинформирует нас, если парсер работает некорректно
 
-<pre>
+<pre class="prettyprint">
 [info] == com.twitter.sample.SimpleParserSpec ==
 [info] SimpleParserSpec
 [info] SimpleParser should
@@ -381,7 +381,7 @@ object SimpleParserSpec extends Specification {
 
 Теперь дав��йте перепишем наш JSON парсер, чтобы он больше соответсвовал действительности
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.sample
 
 import org.codehaus.jackson._
@@ -429,7 +429,7 @@ class SimpleParser {
 
 Получили простой JSON парсер. Когда мы сохраним изменения, SBT перекомпилирует наш код и запустит наши тесты. Получилось намного лучше!
 
-<pre>
+<pre class="prettyprint">
 info] SimpleParser should
 [info]   + work with basic tweet
 [info]   + reject a non-JSON tweet
@@ -442,7 +442,7 @@ info] SimpleParser should
 Нам нужно проверить наши вложенные объекты. Давайте добавим немного ужасных 
 условий в наш цикл чтения.
 
-<pre>
+<pre class="prettyprint">
   def parse(str: String) = {
     val parser = parserFactory.createJsonParser(str)
     var nested = 0
@@ -489,7 +489,7 @@ h2. Создание пакетов и публи��ация
 
 Первым шагом будет включение StandardProject как SBT плагина. Плагины - это способ добавить зависимость в вашу сборку, а не в проект. Эти зависимости располагаются в project/plugins/Plugins.scala. Добавьте следующие строки в файл Plugins.scala.
 
-<pre>
+<pre class="prettyprint">
 import sbt._
 
 class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
@@ -502,7 +502,7 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
 
 Мы также обновим наше описание проекта, расширив StandardProject, включая ветку в SVN, и определим репозиторий для публикации. Измените  SampleProject.scala на следующее
 
-<pre>
+<pre class="prettyprint">
 import sbt._
 import com.twitter.sbt._
 
@@ -516,7 +516,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
 
 Теперь, если мы попробуем опубликовать сборку мы получим сдедующее
 
-<pre>
+<pre class="prettyprint">
 [info] == deliver ==
 IvySvn Build-Version: null
 IvySvn Build-DateTime: null
@@ -552,19 +552,19 @@ h2. Добавление задач
 
 Задачи - это Scala функции. Простейший способ добавить задачу, нужно влючить val в ваше описание проекта, используя метод task, например
 
-<pre>
+<pre class="prettyprint">
 lazy val print = task {log.info("a test action"); None}
 </pre>
 
 Если вам нужны зависимости и описание, то их вы можете добавить так
 
-<pre>
+<pre class="prettyprint">
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
 
 Если мы перезагрузим наш проект и наберем команду print мы увидим следующее
 
-<pre>
+<pre class="prettyprint">
 > print
 [info] 
 [info] == print ==
@@ -578,7 +578,7 @@ lazy val print = task {log.info("a test action"); None}.dependsOn(compile) descr
 
 Итак, все работает. Если объявляете задачу в одном проекте, то все работает прекрасно. Но если вы определяете задачу как плагин, то это будет непрактично. Я хочу, чтобы было так
 
-<pre>
+<pre class="prettyprint">
 lazy val print = printAction
 def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
 def printTask = task {log.info("a test action"); None}
@@ -586,7 +586,7 @@ def printTask = task {log.info("a test action"); None}
 
 Это позволяет пользователям переопределить саму задачу, зависимости и/или описание задачи или действия. Большинство SBT проектов следуют этому образцу. В качестве примера, мы можем изменить встроенные задачи пакета для печати текущего времени, выполните следующие действия
 
-<pre>
+<pre class="prettyprint">
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>

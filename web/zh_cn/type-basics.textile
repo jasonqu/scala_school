@@ -21,7 +21,7 @@ h2(#background). 什么是静态类型？它们为什么有用？
 
 类型允许你表示函数的定义域和值域。例如，从数学角度看这个定义： 
 
-<pre>
+<pre class="prettyprint">
 f: R -> N
 </pre>
 
@@ -52,14 +52,14 @@ h2(#parametricpoly). 参数化多态性
 
 例如，如果没有参数化多态性，一个通用的列表数据结构总是看起来像这样（事实上，它看起来很像使用泛型前的Java）： 
 
-<pre>
+<pre class="prettyprint">
 scala> 2 :: 1 :: "bar" :: "foo" :: Nil
 res5: List[Any] = List(2, 1, bar, foo)
 </pre>
 
 现在我们无法恢复其中成员的任何类型信息。
 
-<pre>
+<pre class="prettyprint">
 scala> res5.head
 res6: Any = 2
 </pre>
@@ -68,7 +68,7 @@ res6: Any = 2
 
 多态性是通过指定 _类型变量_ 实现的。
 
-<pre>
+<pre class="prettyprint">
 scala> def drop1[A](l: List[A]) = l.tail
 drop1: [A](l: List[A])List[A]
 
@@ -80,19 +80,19 @@ h3. Scala有秩1多态性
 
 粗略地说，这意味着在Scala中，有一些你想表达的类型概念“过于泛化”以至于编译器无法理解。假设你有一个函数
 
-<pre>
+<pre class="prettyprint">
 def toList[A](a: A) = List(a)
 </pre>
 
 你希望继续泛型地使用它：
 
-<pre>
+<pre class="prettyprint">
 def foo[A, B](f: A => List[A], b: B) = f(b)
 </pre>
 
 这段代码不能编译，因为所有的类型变量只有在调用上下文中才被固定。即使你“钉住”了类型<code>B</code>：
 
-<pre>
+<pre class="prettyprint">
 def foo[A](f: A => List[A], i: Int) = f(i)
 </pre>
 
@@ -108,7 +108,7 @@ Scala类型推断系统的实现稍有不同，但本质类似：推断约束，
 
 例如，在Scala中你无法这样做：
 
-<pre>
+<pre class="prettyprint">
 scala> { x => x }
 <console>:7: error: missing parameter type
        { x => x }
@@ -116,14 +116,14 @@ scala> { x => x }
 
 而在OCaml中你可以：
 
-<pre>
+<pre class="prettyprint">
 # fun x -> x;;
 - : 'a -> 'a = <fun>
 </pre>
 
 在Scala中所有类型推断是 _局部的_ 。Scala一次分析一个表达式。例如：
 
-<pre>
+<pre class="prettyprint">
 scala> def id[T](x: T) = x
 id: [T](x: T)T
 
@@ -150,7 +150,7 @@ Scala的类型系统必须同时解释类层次和多态性。类层次结构可
 
 子类型关系的真正含义：对一个给定的类型T，如果T'是其子类型，你能替换它吗？
 
-<pre>
+<pre class="prettyprint">
 scala> class Covariant[+A]
 defined class Covariant
 
@@ -165,7 +165,7 @@ scala> val cv: Covariant[String] = new Covariant[AnyRef]
                                    ^
 </pre>
 
-<pre>
+<pre class="prettyprint">
 scala> class Contravariant[-A]
 defined class Contravariant
 
@@ -182,13 +182,13 @@ scala> val fail: Contravariant[AnyRef] = new Contravariant[String]
 
 逆变似乎很奇怪。什么时候才会用到它呢？令人惊讶的是，函数特质的定义就使用了它！
 
-<pre>
+<pre class="prettyprint">
 trait Function1 [-T1, +R] extends AnyRef
 </pre>
 
 如果你仔细从替换的角度思考一下，会发现它是非常合理的。让我们先定义一个简单的类层次结构：
 
-<pre>
+<pre class="prettyprint">
 scala> class Animal { val sound = "rustle" }
 defined class Animal
 
@@ -201,20 +201,20 @@ defined class Chicken
 
 假设你需要一个以<code>Bird</code>为参数的函数：
 
-<pre>
+<pre class="prettyprint">
 scala> val getTweet: (Bird => String) = // TODO
 </pre>
 
 标准动物库有一个函数满足了你的需求，但它的参数是<code>Animal</code>。在大多数情况下，如果你说“我需要一个___，我有一个___的子类”是可以的。但是，在函数参数这里是逆变的。如果你需要一个参数为<code>Bird</code>的函数，并且指向一个参数为<code>Chicken</code>的函数，那么给它传入一个<code>Duck</code>时就会出错。但指向一个参数为<code>Animal</code>的函数就是可以的：
 
-<pre>
+<pre class="prettyprint">
 scala> val getTweet: (Bird => String) = ((a: Animal) => a.sound )
 getTweet: Bird => String = <function1>
 </pre>
 
 函数的返回值类型是协变的。如果你需要一个返回<code>Bird</code>的函数，但指向的函数返回类型是<code>Chicken</code>，这当然是可以的。
 
-<pre>
+<pre class="prettyprint">
 scala> val hatch: (() => Bird) = (() => new Chicken )
 hatch: () => Bird = <function0>
 </pre>
@@ -223,7 +223,7 @@ h2(#bounds). 边界
 
 Scala允许你通过 _边界_ 来限制多态变量。这些边界表达了子类型关系。
 
-<pre>
+<pre class="prettyprint">
 scala> def cacophony[T](things: Seq[T]) = things map (_.sound)
 <console>:7: error: value sound is not a member of type parameter T
        def cacophony[T](things: Seq[T]) = things map (_.sound)
@@ -238,7 +238,7 @@ res5: Seq[java.lang.String] = List(cluck, call)
 
 类型下界也是支持的，这让逆变和巧妙协变的引入得心应手。<code>List[+T]</code>是协变的；一个Bird的列表也是Animal的列表。<code>List</code>定义一个操作<code>::(elem T)</code>返回一个加入了<code>elem</code>的新的<code>List</code>。新的<code>List</code>和原来的列表具有相同的类型：
 
-<pre>
+<pre class="prettyprint">
 scala> val flock = List(new Bird, new Bird)
 flock: List[Bird] = List(Bird@7e1ec70e, Bird@169ea8d2)
 
@@ -248,7 +248,7 @@ res53: List[Bird] = List(Chicken@56fbda05, Bird@7e1ec70e, Bird@169ea8d2)
 
 <code>List</code> _同样_ 定义了<code>::[B >: T](x: B)</code> 来返回一个<code>List[B]</code>。请注意<code>B >: T</code>，这指明了类型<code>B</code>为类型<code>T</code>的超类。这个方法让我们能够做正确地处理在一个<code>List[Bird]</code>前面加一个<code>Animal</code>的操作：
 
-<pre>
+<pre class="prettyprint">
 scala> new Animal :: flock
 res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
@@ -259,35 +259,35 @@ h2(#quantification). 量化
 
 有时候，你并不关心是否能够命名一个类型变量，例如：
 
-<pre>
+<pre class="prettyprint">
 scala> def count[A](l: List[A]) = l.size
 count: [A](List[A])Int
 </pre>
 
 这时你可以使用“通配符”取而代之：
 
-<pre>
+<pre class="prettyprint">
 scala> def count(l: List[_]) = l.size
 count: (List[_])Int
 </pre>
 
 这相当于是下面代码的简写：
 
-<pre>
+<pre class="prettyprint">
 scala> def count(l: List[T forSome { type T }]) = l.size
 count: (List[T forSome { type T }])Int
 </pre>
 
 注意量化会的结果会变得非常难以理解：
 
-<pre>
+<pre class="prettyprint">
 scala> def drop1(l: List[_]) = l.tail
 drop1: (List[_])List[Any]
 </pre>
 
 突然，我们失去了类型信息！让我们细化代码看看发生了什么：
 
-<pre>
+<pre class="prettyprint">
 scala> def drop1(l: List[T forSome { type T }]) = l.tail
 drop1: (List[T forSome { type T }])List[T forSome { type T }]
 </pre>
@@ -296,7 +296,7 @@ drop1: (List[T forSome { type T }])List[T forSome { type T }]
 
 你也可以为通配符类型变量应用边界：
 
-<pre>
+<pre class="prettyprint">
 scala> def hashcodes(l: Seq[_ <: AnyRef]) = l map (_.hashCode)
 hashcodes: (Seq[_ <: AnyRef])Seq[Int]
 

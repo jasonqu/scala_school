@@ -17,7 +17,7 @@ h2(#runnable). Runnable/Callable
 
 Runnable接口只有一个没有返回值的方法。
 
-<pre>
+<pre class="prettyprint">
 trait Runnable {
   def run(): Unit
 }
@@ -25,7 +25,7 @@ trait Runnable {
 
 Callable与之类似，除了它有一个返回值
 
-<pre>
+<pre class="prettyprint">
 trait Callable[V] {
   def call(): V
 }
@@ -40,7 +40,7 @@ Scala并发是建立在Java并发模型基础上的。
 
 一个线程需要一个Runnable。你必须调用线程的 @start@ 方法来运行Runnable。
 
-<pre>
+<pre class="prettyprint">
 scala> val hello = new Thread(new Runnable {
   def run() {
     println("hello world")
@@ -59,7 +59,7 @@ h3. 单线程代码
 
 这里有一个可以工作但有问题的代码片断。
 
-<pre>
+<pre class="prettyprint">
 import java.net.{Socket, ServerSocket}
 import java.util.concurrent.{Executors, ExecutorService}
 import java.util.Date
@@ -94,13 +94,13 @@ class Handler(socket: Socket) extends Runnable {
 
 你可以把每个请求放入一个线程中处理。只要简单改变
 
-<pre>
+<pre class="prettyprint">
 (new Handler(socket)).run()
 </pre>
 
 为
 
-<pre>
+<pre class="prettyprint">
 (new Thread(new Handler(socket))).start()
 </pre>
 
@@ -114,7 +114,7 @@ h2(#executor). Executors
 
 下面改写我们之前的阻塞式网络服务器来允许并发请求。
 
-<pre>
+<pre class="prettyprint">
 import java.net.{Socket, ServerSocket}
 import java.util.concurrent.{Executors, ExecutorService}
 import java.util.Date
@@ -150,7 +150,7 @@ class Handler(socket: Socket) extends Runnable {
 
 这里有一个连接脚本展示了内部线程是如何重用的。
 
-<pre>
+<pre class="prettyprint">
 $ nc localhost 2020
 pool-1-thread-1
 
@@ -171,7 +171,7 @@ h2(#Future). Futures
 
 一个 @FutureTask@ 是一个Runnable实现，就是被设计为由 @Executor@ 运行的
 
-<pre>
+<pre class="prettyprint">
 val future = new FutureTask[String](new Callable[String]() {
   def call(): String = {
     searcher.search(target);
@@ -181,7 +181,7 @@ executor.execute(future)
 
 现在我需要结果，所以阻塞直到其完成。
 
-<pre>
+<pre class="prettyprint">
 val blockingResult = future.get()
 </pre>
 
@@ -189,7 +189,7 @@ val blockingResult = future.get()
 
 h2(#danger). 线程安全问题
 
-<pre>
+<pre class="prettyprint">
 class Person(var name: String) {
   def set(changedName: String) {
     name = changedName
@@ -211,7 +211,7 @@ h4. 同步
 
 在JVM中，你可以同步任何不为null的实例。
 
-<pre>
+<pre class="prettyprint">
 class Person(var name: String) {
   def set(changedName: String) {
     this.synchronized {
@@ -227,7 +227,7 @@ h4. volatile
 
 @synchronized@ 允许更细粒度的锁。 而 @volatile@ 则对每次访问同步。
 
-<pre>
+<pre class="prettyprint">
 class Person(@volatile var name: String) {
   def set(changedName: String) {
     name = changedName
@@ -239,7 +239,7 @@ h4. AtomicReference
 
 此外，在Java 5中还添加了一系列低级别的并发原语。 @AtomicReference@ 类是其中之一
 
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.atomic.AtomicReference
 
 class Person(val name: AtomicReference[String]) {
@@ -267,7 +267,7 @@ h4. CountDownLatch
 
 @CountDownLatch@ 是一个简单的多线程互相通信的机制。
 
-<pre>
+<pre class="prettyprint">
 val doneSignal = new CountDownLatch(2)
 doAsyncWork(1)
 doAsyncWork(2)
@@ -298,7 +298,7 @@ h2(#example). 让我们构建一个不安全的搜索引擎
 
 注意使用了 @mutable.HashMap@ 替代了默认的构造函数 @this()@
 
-<pre>
+<pre class="prettyprint">
 import scala.collection.mutable
 
 case class User(name: String, id: Int)
@@ -333,7 +333,7 @@ h2(#solutions). 让我们把它变为线程安全
 
 你可能会考虑在做添加操作时锁定userMap。
 
-<pre>
+<pre class="prettyprint">
 def add(user: User) {
   userMap.synchronized {
     tokenizeName(user.name).foreach { term =>
@@ -345,7 +345,7 @@ def add(user: User) {
 
 不幸的是，这个粒度太粗了。一定要试图在互斥锁以外做尽可能多的耗时的工作。还记得我说过如果不存在资源争夺，锁开销就会很小吗。如果在锁代码块里面做的工作越少，争夺就会越少。
 
-<pre>
+<pre class="prettyprint">
 def add(user: User) {
   // tokenizeName was measured to be the most expensive operation.
   val tokens = tokenizeName(user.name)
@@ -364,7 +364,7 @@ h2. SynchronizedMap
 
 我们可以扩展现有的InvertedIndex，提供给用户一个简单的方式来构建同步索引。
 
-<pre>
+<pre class="prettyprint">
 import scala.collection.mutable.SynchronizedMap
 
 class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends InvertedIndex(userMap) {
@@ -380,7 +380,7 @@ Java有一个很好的线程安全的ConcurrentHashMap。值得庆幸的是，�
 
 事实上，我们可以通过扩展老的不安全的代码，来无缝地接入新的线程安全InvertedIndex。
 
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConverters._
 
@@ -395,7 +395,7 @@ h2. 让我们加载InvertedIndex
 
 h3. 原始方式
 
-<pre>
+<pre class="prettyprint">
 trait UserMaker {
   def makeUser(line: String) = line.split(",") match {
     case Array(name, userid) => User(name, userid.trim().toInt)
@@ -419,7 +419,7 @@ h3.  一个解决方案：生产者/消费者
 
 异步计算的一个常见模式是把消费者和生产者分开，让他们只能通过 @队列（Queue）@ 沟通。让我们看看如何将这个模式应用在我们的搜索引擎索引中。
 
-<pre>
+<pre class="prettyprint">
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 
 // Concrete producer

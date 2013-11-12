@@ -18,7 +18,7 @@ h2(#apply). Метод apply
 
 Метод apply - это синтаксический сахар, который применяется для класса или объекта с единственной целью.
 
-<pre>
+<pre class="prettyprint">
 object FooMaker {
   def apply() = new Foo
 }
@@ -41,7 +41,7 @@ h2(#object). Объекты
 
 Объекты используются для хранения одного экземпляра класса. Чаще всего они используются с фабриками объектов.
 
-<pre>
+<pre class="prettyprint">
 object Timer {
   var count = 0
 
@@ -54,7 +54,7 @@ object Timer {
 
 Как можно это использовать?
 
-<pre>
+<pre class="prettyprint">
 scala> Timer.currentCount()
 res0: Long = 1
 </pre>
@@ -63,7 +63,7 @@ res0: Long = 1
 
 Далее представлен простой пример, который показывает, как можно использовать Объект-спутник, для того чтобы исключить необходимость в использовании ключевого слова 'new' для создания экземпляра объекта.
 
-<pre>
+<pre class="prettyprint">
 class Bar(foo: String)
 
 object Bar {
@@ -78,7 +78,7 @@ h2(#fnobj). Функции, тоже являются Объектами
 
 Функция - это набор трейтов. В частности, функция, которая принимает один аргумент является экземпляром трейта Function1. Этот трейт определяет метод <code>apply()</code>, который является синтаксическим сахаром, о нем мы узнали ранее, он позволяет вам вызывать объект, словно он является функцией.
 
-<pre>
+<pre class="prettyprint">
 scala> object addOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
@@ -96,7 +96,7 @@ res2: Int = 2
 
 Классы могут расширять Function* и в этих случаях они могут быть вызваны при помощи ().
 
-<pre>
+<pre class="prettyprint">
 scala> class AddOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
@@ -111,7 +111,7 @@ res0: Int = 2
 
 Запись <code>extends Function1[Int, Int]</code> мы можем переписать, используя <code>extends (Int => Int)</code>
 
-<pre>
+<pre class="prettyprint">
 class AddOne extends (Int => Int) {
   def apply(m: Int): Int = m + 1
 }
@@ -121,7 +121,7 @@ h2(#package). Пакеты
 
 Вы можете организовывать ваш код, используя пакеты.
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.example
 </pre>
 
@@ -129,7 +129,7 @@ package com.twitter.example
 
 Значения и функции не могут быть объявлены за пределами класса или объекта. Объекты представляют собой полезный инструмент для организации статических функций.
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.example
 
 object colorHolder {
@@ -140,13 +140,13 @@ object colorHolder {
 
 После этого у вас есть доступ к членам пакета напрямую
 
-<pre>
+<pre class="prettyprint">
 println("the color is: " + com.twitter.example.colorHolder.BLUE)
 </pre>
 
 Обратите внимание, что Scala REPL говорит вам когда вы объявляете объект:
 
-<pre>
+<pre class="prettyprint">
 scala> object colorHolder {
      |   val Blue = "Blue"
      |   val Red = "Red"
@@ -162,7 +162,7 @@ h2(#match). Сопоставление с образцом
 
 Сопоставление значений
 
-<pre>
+<pre class="prettyprint">
 val times = 1
 
 times match {
@@ -174,7 +174,7 @@ times match {
 
 Сопоставление с использованием условий
 
-<pre>
+<pre class="prettyprint">
 times match {
   case i if i == 1 => "one"
   case i if i == 2 => "two"
@@ -195,7 +195,7 @@ h3. Сопоставление типов
 
 Вы можете использовать <code>match</code>, чтобы управлять значениями типов различными способами.
 
-<pre>
+<pre class="prettyprint">
 def bigger(o: Any): Any = {
   o match {
     case i: Int if i < 0 => i - 1
@@ -213,7 +213,7 @@ h3. Сопоставление методов класса
 
 Давайте проведем классификацию по типам.
 
-<pre>
+<pre class="prettyprint">
 def calcType(calc: Calculator) = calc match {
   case calc.brand == "hp" && calc.model == "20B" => "financial"
   case calc.brand == "hp" && calc.model == "48G" => "scientific"
@@ -228,7 +228,7 @@ h2(#caseclass). Case Классы
 
 Case классы используются для удобного хранения и поиска соответствий по содержимому класса. Вы можете создавать их без использования 'new'.
 
-<pre>
+<pre class="prettyprint">
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
@@ -239,7 +239,7 @@ hp20b: Calculator = Calculator(hp,20b)
 
 У case классов есть метод ToString, работающий автоматически, и который опирается на аргументы конструктора.
 
-<pre>
+<pre class="prettyprint">
 scala> val hp20b = Calculator("hp", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
@@ -256,7 +256,7 @@ h6. Case Классы и сопоставление с образцом
 
 case классы предназначены для использования вместе с сопоставлением с образцом. Давайте упростим наш классификатор из примера с калькулятором.
 
-<pre>
+<pre class="prettyprint">
 val hp20b = Calculator("hp", "20B")
 val hp30b = Calculator("hp", "30B")
 
@@ -270,19 +270,19 @@ def calcType(calc: Calculator) = calc match {
 
 А это другой способ для последнего сопоставления
 
-<pre>
+<pre class="prettyprint">
   case Calculator(_, _) => "Calculator of unknown type"
 </pre>
 
 мы можем не объявлять, что это Calculator совсем.
 
-<pre>
+<pre class="prettyprint">
   case _ => "Calculator of unknown type"
 </pre>
 
 Или мы можем связать найденное значение с другим именем
 
-<pre>
+<pre class="prettyprint">
   case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
 </pre>
 
@@ -290,7 +290,7 @@ h2(#exception). Исключения
 
 Исключения доступны в Scala при использовании синтаксиса try-catch-finally, который использует сопоставление с образцом.
 
-<pre>
+<pre class="prettyprint">
 try {
   remoteCalculatorService.add(1, 2)
 } catch {
@@ -302,7 +302,7 @@ try {
 
 <code>try</code> тоже ориентирован на выражения
 
-<pre>
+<pre class="prettyprint">
 val result: Int = try {
   remoteCalculatorService.add(1, 2)
 } catch {

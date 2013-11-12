@@ -18,7 +18,7 @@ h2(#apply). apply 方法
 
 当类或对象有一个主要用途的时候，apply方法为你提供了一个很好的语法糖。
 
-<pre>
+<pre class="prettyprint">
 scala> class Foo {}
 defined class Foo
 
@@ -33,7 +33,7 @@ newFoo: Foo = Foo@5b83f762
 
 或
 
-<pre>
+<pre class="prettyprint">
 scala> class Bar {
      |   def apply() = 0
      | }
@@ -54,7 +54,7 @@ h2(#object). 单例对象
 
 单例对象用于持有一个类的唯一实例。通常用于工厂模式。
 
-<pre>
+<pre class="prettyprint">
 object Timer {
   var count = 0
 
@@ -67,7 +67,7 @@ object Timer {
 
 可以这样使用：
 
-<pre>
+<pre class="prettyprint">
 scala> Timer.currentCount()
 res0: Long = 1
 </pre>
@@ -76,7 +76,7 @@ res0: Long = 1
 
 下面是一个简单的例子，可以不需要使用'new'来创建一个实例了。
 
-<pre>
+<pre class="prettyprint">
 class Bar(foo: String)
 
 object Bar {
@@ -91,7 +91,7 @@ h2(#fnobj). 函数即对象
 
 函数是一些特质的集合。具体来说，具有一个参数的函数是Function1特质的一个实例。这个特征定义了<code>apply()</code>语法糖，让你调用一个对象时就像你在调用一个函数。
 
-<pre>
+<pre class="prettyprint">
 scala> object addOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
@@ -109,7 +109,7 @@ apply语法糖有助于统一对象和函数式编程的二重性。你可以传
 
 类也可以扩展Function，这些类的实例可以使用()调用。
 
-<pre>
+<pre class="prettyprint">
 scala> class AddOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
@@ -124,7 +124,7 @@ res0: Int = 2
 
 可以使用更直观快捷的<code>extends (Int => Int)</code>代替<code>extends Function1[Int, Int]</code>
 
-<pre>
+<pre class="prettyprint">
 class AddOne extends (Int => Int) {
   def apply(m: Int): Int = m + 1
 }
@@ -135,7 +135,7 @@ h2(#package). 包
 
 你可以将代码组织在包里。
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.example
 </pre>
 
@@ -143,7 +143,7 @@ package com.twitter.example
 
 值和函数不能在类或单例对象之外定义。单例对象是组织静态函数(static function)的有效工具。
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.example
 
 object colorHolder {
@@ -154,13 +154,13 @@ object colorHolder {
 
 现在你可以直接访问这些成员
 
-<pre>
+<pre class="prettyprint">
 println("the color is: " + com.twitter.example.colorHolder.BLUE)
 </pre>
 
 注意在你定义这个对象时Scala解释器的返回：
 
-<pre>
+<pre class="prettyprint">
 scala> object colorHolder {
      |   val Blue = "Blue"
      |   val Red = "Red"
@@ -176,7 +176,7 @@ h2(#match). 模式匹配
 
 匹配值
 
-<pre>
+<pre class="prettyprint">
 val times = 1
 
 times match {
@@ -188,7 +188,7 @@ times match {
 
 使用守卫进行匹配
 
-<pre>
+<pre class="prettyprint">
 times match {
   case i if i == 1 => "one"
   case i if i == 2 => "two"
@@ -208,7 +208,7 @@ h3. 匹配类型
 
 你可以使用 <code>match</code>来分别处理不同类型的值。
 
-<pre>
+<pre class="prettyprint">
 def bigger(o: Any): Any = {
   o match {
     case i: Int if i < 0 => i - 1
@@ -228,7 +228,7 @@ h3. 匹配类成员
 
 一开始会很痛苦。
 
-<pre>
+<pre class="prettyprint">
 def calcType(calc: Calculator) = calc match {
   case _ if calc.brand == "hp" && calc.model == "20B" => "financial"
   case _ if calc.brand == "hp" && calc.model == "48G" => "scientific"
@@ -243,7 +243,7 @@ h2(#caseclass). 样本类 Case Classes
 
 使用样本类可以方便得存储和匹配类的内容。你不用new关键字就可以创建它们。
 
-<pre>
+<pre class="prettyprint">
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
@@ -253,7 +253,7 @@ hp20b: Calculator = Calculator(hp,20b)
 
 样本类基于构造函数的参数，自动地实现了相等性和易读的toString方法。
 
-<pre>
+<pre class="prettyprint">
 scala> val hp20b = Calculator("hp", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
@@ -271,7 +271,7 @@ h6. 使用样本类进行模式匹配
 case classes are designed to be used with pattern matching.  Let's simplify our calculator classifier example from earlier.
 样本类就是被设计用在模式匹配中的。让我们简化之前的计算器分类器的例子。
 
-<pre>
+<pre class="prettyprint">
 val hp20b = Calculator("hp", "20B")
 val hp30b = Calculator("hp", "30B")
 
@@ -285,19 +285,19 @@ def calcType(calc: Calculator) = calc match {
 
 最后一句也可以这样写
 
-<pre>
+<pre class="prettyprint">
   case Calculator(_, _) => "Calculator of unknown type"
 </pre>
 
 或者我们完全可以不将匹配对象指定为Calculator类型
 
-<pre>
+<pre class="prettyprint">
   case _ => "Calculator of unknown type"
 </pre>
 
 或者我们也可以将匹配的值重新命名。
 
-<pre>
+<pre class="prettyprint">
   case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
 </pre>
 
@@ -305,7 +305,7 @@ h2(#exception). 异常
 
 Scala中的异常可以在try-catch-finally语法中通过模式匹配使用。
 
-<pre>
+<pre class="prettyprint">
 try {
   remoteCalculatorService.add(1, 2)
 } catch {
@@ -317,7 +317,7 @@ try {
 
 <code>try</code>也是面向表达式的
 
-<pre>
+<pre class="prettyprint">
 val result: Int = try {
   remoteCalculatorService.add(1, 2)
 } catch {

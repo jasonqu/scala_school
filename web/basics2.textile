@@ -18,7 +18,7 @@ h2(#apply). apply methods
 
 apply methods give you a nice syntactic sugar for when a class or object has one main use.
 
-<pre>
+<pre class="prettyprint">
 scala> class Foo {}
 defined class Foo
 
@@ -33,7 +33,7 @@ newFoo: Foo = Foo@5b83f762
 
 or
 
-<pre>
+<pre class="prettyprint">
 scala> class Bar {
      |   def apply() = 0
      | }
@@ -52,7 +52,7 @@ h2(#object). Objects
 
 Objects are used to hold single instances of a class. Often used for factories.
 
-<pre>
+<pre class="prettyprint">
 object Timer {
   var count = 0
 
@@ -65,7 +65,7 @@ object Timer {
 
 How to use
 
-<pre>
+<pre class="prettyprint">
 scala> Timer.currentCount()
 res0: Long = 1
 </pre>
@@ -74,7 +74,7 @@ Classes and Objects can have the same name.  The object is called a 'Companion O
 
 Here is a trivial example that only serves to remove the need to use 'new' to create an instance.
 
-<pre>
+<pre class="prettyprint">
 class Bar(foo: String)
 
 object Bar {
@@ -89,7 +89,7 @@ In Scala, we talk about object-functional programming often.  What does that mea
 
 A Function is a set of traits. Specifically, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.
 
-<pre>
+<pre class="prettyprint">
 scala> object addOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
@@ -107,7 +107,7 @@ Does this mean that every time you define a method in your class, you're actuall
 
 Classes can also extend Function and those instances can be called with ().
 
-<pre>
+<pre class="prettyprint">
 scala> class AddOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
@@ -122,7 +122,7 @@ res0: Int = 2
 
 A nice short-hand for <code>extends Function1[Int, Int]</code> is <code>extends (Int => Int)</code>
 
-<pre>
+<pre class="prettyprint">
 class AddOne extends (Int => Int) {
   def apply(m: Int): Int = m + 1
 }
@@ -132,7 +132,7 @@ h2(#package). Packages
 
 You can organize your code inside of packages.
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.example
 </pre>
 
@@ -140,7 +140,7 @@ at the top of a file will declare everything in the file to be in that package.
 
 Values and functions cannot be outside of a class or object.  Objects are a useful tool for organizing static functions.
 
-<pre>
+<pre class="prettyprint">
 package com.twitter.example
 
 object colorHolder {
@@ -151,13 +151,13 @@ object colorHolder {
 
 Now you can access the members directly
 
-<pre>
+<pre class="prettyprint">
 println("the color is: " + com.twitter.example.colorHolder.BLUE)
 </pre>
 
 Notice what the scala repl says when you define this object:
 
-<pre>
+<pre class="prettyprint">
 scala> object colorHolder {
      |   val Blue = "Blue"
      |   val Red = "Red"
@@ -173,7 +173,7 @@ One of the most useful parts of Scala.
 
 Matching on values
 
-<pre>
+<pre class="prettyprint">
 val times = 1
 
 times match {
@@ -185,7 +185,7 @@ times match {
 
 Matching with guards
 
-<pre>
+<pre class="prettyprint">
 times match {
   case i if i == 1 => "one"
   case i if i == 2 => "two"
@@ -206,7 +206,7 @@ h3. Matching on type
 
 You can use <code>match</code> to handle values of different types differently.
 
-<pre>
+<pre class="prettyprint">
 def bigger(o: Any): Any = {
   o match {
     case i: Int if i < 0 => i - 1
@@ -226,7 +226,7 @@ Let's classify them according to type.
 
 Here's the painful way first.
 
-<pre>
+<pre class="prettyprint">
 def calcType(calc: Calculator) = calc match {
   case _ if calc.brand == "hp" && calc.model == "20B" => "financial"
   case _ if calc.brand == "hp" && calc.model == "48G" => "scientific"
@@ -241,7 +241,7 @@ h2(#caseclass). Case Classes
 
 case classes are used to conveniently store and match on the contents of a class. You can construct them without using new.
 
-<pre>
+<pre class="prettyprint">
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
@@ -252,7 +252,7 @@ hp20b: Calculator = Calculator(hp,20b)
 
 case classes automatically have equality and nice toString methods based on the constructor arguments.
 
-<pre>
+<pre class="prettyprint">
 scala> val hp20b = Calculator("hp", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
@@ -269,7 +269,7 @@ h6. Case Classes with pattern matching
 
 case classes are designed to be used with pattern matching.  Let's simplify our calculator classifier example from earlier.
 
-<pre>
+<pre class="prettyprint">
 val hp20b = Calculator("hp", "20B")
 val hp30b = Calculator("hp", "30B")
 
@@ -283,19 +283,19 @@ def calcType(calc: Calculator) = calc match {
 
 Other alternatives for that last match
 
-<pre>
+<pre class="prettyprint">
   case Calculator(_, _) => "Calculator of unknown type"
 </pre>
 
   OR we could simply not specify that it's a Calculator at all.
 
-<pre>
+<pre class="prettyprint">
   case _ => "Calculator of unknown type"
 </pre>
 
   OR we could re-bind the matched value with another name
 
-<pre>
+<pre class="prettyprint">
   case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
 </pre>
 
@@ -303,7 +303,7 @@ h2(#exception). Exceptions
 
 Exceptions are available in Scala via a try-catch-finally syntax that uses pattern matching.
 
-<pre>
+<pre class="prettyprint">
 try {
   remoteCalculatorService.add(1, 2)
 } catch {
@@ -315,7 +315,7 @@ try {
 
 <code>try</code>s are also expression-oriented
 
-<pre>
+<pre class="prettyprint">
 val result: Int = try {
   remoteCalculatorService.add(1, 2)
 } catch {
