@@ -286,7 +286,7 @@ class Calculator(brand: String) {
 }
 </pre>
 
-注意两种不同风格的评论。
+注意两种不同风格的注释。
 
 你可以使用构造函数来构造一个实例：
 
@@ -421,7 +421,7 @@ trait Cache[K, V] {
 }
 </pre>
 
-方法也可以引入类型参数。
+也可以在方法中引入类型参数。
 
 <pre class="prettyprint">
 def remove[K](key: K)
